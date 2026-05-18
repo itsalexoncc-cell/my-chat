@@ -97,7 +97,7 @@ body{
     flex-shrink:0;
 }
 
-/* Кнопка назад */
+/* ===== КНОПКА НАЗАД ===== */
 
 #back-btn{
 
@@ -114,6 +114,89 @@ body{
     cursor:pointer;
 
     margin-right:2px;
+
+    flex-shrink:0;
+}
+
+/* ===== СПИСОК ЧАТОВ ===== */
+
+#chat-list{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    background:#f3f4f8;
+
+    border-top-left-radius:34px;
+    border-top-right-radius:34px;
+
+    padding-top:8px;
+
+    display:none;
+}
+
+/* ===== ЭЛЕМЕНТ ЧАТА ===== */
+
+.chat-item{
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    padding:
+        14px
+        18px;
+
+    transition:.15s;
+
+    cursor:pointer;
+}
+
+.chat-item:active{
+    background:#e5e7eb;
+}
+
+/* ===== АВАТАР ЧАТА ===== */
+
+.chat-avatar{
+
+    width:54px;
+    height:54px;
+
+    border-radius:50%;
+
+    background:#d1d5db;
+
+    flex-shrink:0;
+}
+
+/* ===== ИНФО ===== */
+
+.chat-info{
+    flex:1;
+    min-width:0;
+}
+
+.chat-name{
+
+    font-size:17px;
+    font-weight:600;
+
+    color:#111827;
+
+    margin-bottom:4px;
+}
+
+.chat-preview{
+
+    font-size:14px;
+
+    color:#6b7280;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
 /* ===== АВАТАР ===== */
@@ -526,10 +609,72 @@ body{
     >
 
 </div>
+    <div id="profile-header">
+
+<button id="back-btn">‹</button>
 
 <!-- ===== ЧАТ ===== -->
 
 <div id="chat-window"></div>
+        <!-- ===== СПИСОК ЧАТОВ ===== -->
+
+<div id="chat-list">
+
+    <div class="chat-item">
+
+        <div class="chat-avatar"></div>
+
+        <div class="chat-info">
+
+            <div class="chat-name">
+                Маша
+            </div>
+
+            <div class="chat-preview">
+                Привет 👋
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="chat-item">
+
+        <div class="chat-avatar"></div>
+
+        <div class="chat-info">
+
+            <div class="chat-name">
+                Иван
+            </div>
+
+            <div class="chat-preview">
+                Как дела?
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="chat-item">
+
+        <div class="chat-avatar"></div>
+
+        <div class="chat-info">
+
+            <div class="chat-name">
+                Telegram News
+            </div>
+
+            <div class="chat-preview">
+                Новый пост
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- ===== НИЖНЯЯ ПАНЕЛЬ ===== -->
 
@@ -582,7 +727,7 @@ body{
     <button id="send-btn">➤</button>
 
 </div>
-
+        
 <script type="module">
 
 import { initializeApp }
@@ -652,6 +797,15 @@ document.getElementById("image-btn");
 
 const imageInput =
 document.getElementById("image-input");
+    
+ const backBtn =
+document.getElementById("back-btn");
+
+const chatList =
+document.getElementById("chat-list");
+
+const inputArea =
+document.getElementById("input-area");
 
 /* ===== УНИКАЛЬНЫЙ ID УСТРОЙСТВА ===== */
 
@@ -956,6 +1110,42 @@ msgInput.addEventListener(
         scrollToBottom,
         300
     );
+
+});
+   
+/* ===== ЭКРАН ЧАТОВ ===== */
+
+const backBtn =
+document.getElementById("back-btn");
+
+const chatList =
+document.getElementById("chat-list");
+
+const inputArea =
+document.getElementById("input-area");
+
+let chatsOpened = false;
+
+backBtn.addEventListener("click", () => {
+
+    chatsOpened = !chatsOpened;
+
+    if (chatsOpened){
+
+        chatWindow.style.display = "none";
+
+        inputArea.style.display = "none";
+
+        chatList.style.display = "block";
+
+    } else {
+
+        chatWindow.style.display = "flex";
+
+        inputArea.style.display = "flex";
+
+        chatList.style.display = "none";
+    }
 
 });
 
