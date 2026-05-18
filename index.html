@@ -1263,9 +1263,10 @@ async function loadAllUsers(){
         snapshot.forEach(doc => {
             if (doc.data().deviceId !== deviceId){
                 allUsers.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
+    id: doc.id,
+    ...doc.data(),
+    username: (doc.data().username || "").toLowerCase()
+});
             }
         });
         console.log("Загружено пользователей:", allUsers.length);
@@ -1308,9 +1309,9 @@ function displayUserSearchResults(searchQuery){
     }
 
     const searchLower = searchQuery.toLowerCase().replace("@", "");
-    const filtered = allUsers.filter(user => 
-        user.username.includes(searchLower)
-    );
+    const filtered = allUsers.filter(user =>
+    (user.username || "").toLowerCase().includes(searchLower)
+);
 
     if (filtered.length === 0){
         findUserContent.innerHTML = `
