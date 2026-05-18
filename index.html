@@ -325,13 +325,24 @@ body{
     border:none;
     border-radius:50%;
 
-    background:#f1f2f6;
+    background:#f3f4f6;
 
-    font-size:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
     cursor:pointer;
 
     flex-shrink:0;
+
+    transition:.15s;
+}
+
+#image-btn:active{
+
+    transform:scale(0.92);
+
+    background:#e5e7eb;
 }
 
 #image-btn:active{
@@ -434,7 +445,35 @@ body{
         style="display:none;"
     >
 
-    <button id="image-btn">📷</button>
+    <button id="image-btn">
+
+<svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+>
+
+<path
+    d="M8 5L6.5 7H5C3.9 7 3 7.9 3 9V17C3 18.1 3.9 19 5 19H19C20.1 19 21 18.1 21 17V9C21 7.9 20.1 7 19 7H17.5L16 5H8Z"
+    stroke="#6b7280"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+/>
+
+<circle
+    cx="12"
+    cy="13"
+    r="3.2"
+    stroke="#6b7280"
+    stroke-width="1.8"
+/>
+
+</svg>
+
+</button>
 
     <button id="send-btn">➤</button>
 
