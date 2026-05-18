@@ -324,7 +324,7 @@ body{
     color:rgba(255,255,255,0.7);
 }
 
-/* ===== ОСНОВНОЙ КОНТЕНТ ===== */
+/* ===== ОС��ОВНОЙ КОНТЕНТ ===== */
 
 #main-content{
     flex:1;
@@ -1190,10 +1190,11 @@ if (isFirstLaunch){
         avatarImg.style.display = "block";
         avatarPlaceholder.style.display = "none";
     }
-    // Показать список чатов после загрузки
-    setTimeout(() => {
+    // Загрузить пользователей и показать список чатов
+    setTimeout(async () => {
+        await loadAllUsers();
+        isInChatsList = false;
         toggleChatsList();
-        loadAllUsers();
     }, 100);
 }
 
@@ -1228,7 +1229,7 @@ regButton.addEventListener("click", async () => {
         await addDoc(usersRef, {
             deviceId: deviceId,
             name: myName,
-            username: myUsername,
+            username: myUsername.toLowerCase(),
             avatar: myAvatar,
             createdAt: serverTimestamp()
         });
@@ -1267,19 +1268,18 @@ async function loadAllUsers(){
                 });
             }
         });
+        console.log("Загружено пользователей:", allUsers.length);
     } catch (e) {
         console.error("Ошибка загрузки пользователей:", e);
     }
 }
 
-// Загрузить пользователей после регистрации
-if (!isFirstLaunch){
-    loadAllUsers();
-}
-
 /* ===== ПОИСК ПОЛЬЗОВАТЕЛЯ ===== */
 
-window.openFindUserScreen = function(){
+window.openFindUserScreen = async function(){
+    // Загрузить пользователей перед открытием
+    await loadAllUsers();
+    
     findUserScreen.classList.add("active");
     findSearchInput.focus();
     findSearchInput.value = "";
@@ -1307,8 +1307,9 @@ function displayUserSearchResults(searchQuery){
         return;
     }
 
+    const searchLower = searchQuery.toLowerCase().replace("@", "");
     const filtered = allUsers.filter(user => 
-        user.username.toLowerCase().includes(searchQuery.toLowerCase())
+        user.username.includes(searchLower)
     );
 
     if (filtered.length === 0){
