@@ -7,18 +7,20 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
-        /* Фиксируем body, запрещая ему скроллиться и двигаться на iOS */
-        body { 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
+        /* Жесткая фиксация всего экрана, как ты просил */
+        html, body {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden; 
-            background: #f5f5f7; 
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f5f5f7;
+        }
+
+        body { 
+            display: flex; 
+            flex-direction: column; 
         }
         
         /* Шапка профиля сверху */
@@ -30,7 +32,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            z-index: 10;
+            flex-shrink: 0;
         }
         #avatar-container {
             position: relative;
@@ -66,12 +68,12 @@
             outline: none;
         }
 
-        /* Окно чата — ТЕПЕРЬ С ИЗОЛИРОВАННЫМ СКРОЛЛОМ */
+        /* Окно чата */
         #chat-window { 
             flex: 1; 
             padding: 15px; 
-            overflow-y: scroll; 
-            -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
             display: flex; 
             flex-direction: column; 
             gap: 10px; 
@@ -85,21 +87,43 @@
         .msg .name { font-size: 11px; opacity: 0.7; font-weight: 600; }
         .msg.outgoing .name { color: #e1f0ff; }
 
-        /* Никуда не уезжающая нижняя панель ввода */
+        /* Нижняя панель с искусственным буфером снизу */
         #input-area { 
             display: flex; 
-            padding: 8px 12px; 
-            background: rgba(255, 255, 255, 0.9); 
+            align-items: flex-start; /* Прижимаем инпут и кнопку к верху панели */
+            padding: 10px 12px; 
+            background: rgba(255, 255, 255, 0.94); 
             -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border-top: 1px solid #d1d1d6; 
             gap: 8px; 
-            padding-bottom: calc(10px + env(safe-area-inset-bottom)); 
-            z-index: 10;
+            flex-shrink: 0;
+            
+            /* Делаем панель повыше и даем большой отступ снизу, который уйдет за экран */
+            height: 90px; 
+            padding-bottom: 40px; 
         }
-        #msg-input { flex: 1; padding: 7px 14px; border: 1px solid #d1d1d6; border-radius: 18px; font-size: 15px; outline: none; background: #f2f2f7; }
+        #msg-input { 
+            flex: 1; 
+            padding: 8px 14px; 
+            border: 1px solid #d1d1d6; 
+            border-radius: 18px; 
+            font-size: 16px; 
+            outline: none; 
+            background: #f2f2f7; 
+        }
         #msg-input:focus { background: white; border-color: #007aff; }
-        #send-btn { background: #007aff; color: white; border: none; padding: 0 16px; border-radius: 18px; font-weight: 600; font-size: 14px; cursor: pointer; transition: opacity 0.1s; }
+        #send-btn { 
+            background: #007aff; 
+            color: white; 
+            border: none; 
+            height: 34px; /* Фиксируем высоту кнопки под инпут */
+            padding: 0 16px; 
+            border-radius: 18px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            cursor: pointer; 
+        }
         #send-btn:active { opacity: 0.7; }
     </style>
 </head>
@@ -224,18 +248,15 @@
                 chatWindow.appendChild(msgDiv);
             });
             
-            // Плавный автоматический скролл вниз при получении сообщений
             setTimeout(() => {
                 chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
             }, 50);
         });
 
-        // Блокируем отскок (rubber-banding) всей страницы в Safari
-        document.addEventListener('touchmove', (e) => {
-            if (!e.target.closest('#chat-window')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
+        // Полностью исключаем любое смещение экрана при скролле
+        window.addEventListener('scroll', (e) => {
+            window.scrollTo(0, 0);
+        });
     </script>
 </body>
 </html>
