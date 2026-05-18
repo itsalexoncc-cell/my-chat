@@ -390,6 +390,7 @@ body{
     align-items:center;
     gap:10px;
     margin-bottom:8px;
+    flex-shrink:0;
 }
 
 .chats-title{
@@ -419,6 +420,14 @@ body{
     transform:scale(0.94);
 }
 
+#chats-list-items{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+}
+
 .chat-item{
     padding:16px;
     background:white;
@@ -429,6 +438,7 @@ body{
     display:flex;
     align-items:center;
     gap:12px;
+    flex-shrink:0;
 }
 
 .chat-item:active{
@@ -467,6 +477,21 @@ body{
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
+}
+
+.chats-empty{
+    text-align:center;
+    padding:40px 20px;
+    color:#999;
+}
+
+.chats-empty-icon{
+    font-size:48px;
+    margin-bottom:12px;
+}
+
+.chats-empty-text{
+    font-size:15px;
 }
 
 /* ===== ПОИСК ПОЛЬЗОВАТЕЛЯ ===== */
@@ -583,7 +608,7 @@ body{
     color:#222;
 }
 
-.user-device-id{
+.user-username{
     font-size:12px;
     color:#999;
     margin-top:2px;
@@ -907,6 +932,11 @@ body{
     height:0;
 }
 
+#chats-list-items::-webkit-scrollbar{
+    width:0;
+    height:0;
+}
+
 </style>
 </head>
 
@@ -932,6 +962,11 @@ body{
         <div class="reg-input-group">
             <div class="reg-label">Твое имя</div>
             <input type="text" id="reg-name-input" class="reg-input" placeholder="Как тебя зовут?">
+        </div>
+
+        <div class="reg-input-group">
+            <div class="reg-label">Юзернейм</div>
+            <input type="text" id="reg-username-input" class="reg-input" placeholder="@username">
         </div>
 
         <button id="reg-button" class="reg-button">Начать</button>
@@ -979,7 +1014,7 @@ body{
     <div id="chats-list">
         <div class="chats-header">
             <div class="chats-title">Сообщения</div>
-            <button class="new-chat-btn" onclick="openFindUserScreen()">+</button>
+            <button class="new-chat-btn" onclick="window.openFindUserScreen()">+</button>
         </div>
         <div id="chats-list-items"></div>
     </div>
@@ -990,8 +1025,8 @@ body{
 
 <div id="find-user-screen">
     <div class="find-user-header">
-        <button class="find-back-btn" onclick="closeFindUserScreen()">‹</button>
-        <input type="text" id="find-search-input" class="find-search-input" placeholder="Поиск по имени...">
+        <button class="find-back-btn" onclick="window.closeFindUserScreen()">‹</button>
+        <input type="text" id="find-search-input" class="find-search-input" placeholder="Поиск по юзернейму...">
     </div>
     <div id="find-user-content" class="find-user-content"></div>
 </div>
@@ -1096,6 +1131,7 @@ const usersRef = collection(db, "users");
 
 const registrationScreen = document.getElementById("registration-screen");
 const regNameInput = document.getElementById("reg-name-input");
+const regUsernameInput = document.getElementById("reg-username-input");
 const regFileInput = document.getElementById("reg-file-input");
 const regAvatarImg = document.getElementById("reg-avatar-img");
 const regAvatarPlaceholder = document.getElementById("reg-avatar-placeholder");
@@ -1133,6 +1169,7 @@ if (!deviceId){
 }
 
 let myName = localStorage.getItem("chat_name") || "";
+let myUsername = localStorage.getItem("chat_username") || "";
 let myAvatar = localStorage.getItem("chat_avatar") || "";
 
 let currentChatId = null;
@@ -1153,6 +1190,11 @@ if (isFirstLaunch){
         avatarImg.style.display = "block";
         avatarPlaceholder.style.display = "none";
     }
+    // Показать список чатов после загрузки
+    setTimeout(() => {
+        toggleChatsList();
+        loadAllUsers();
+    }, 100);
 }
 
 regFileInput.addEventListener("change", (e) => {
@@ -1170,12 +1212,15 @@ regFileInput.addEventListener("change", (e) => {
 
 regButton.addEventListener("click", async () => {
     const name = regNameInput.value.trim() || "Аноним";
+    const username = regUsernameInput.value.trim() || "user_" + Math.random().toString(36).slice(2, 8);
     const avatar = regAvatarImg.style.display === "block" ? regAvatarImg.src : "";
 
     myName = name;
+    myUsername = username;
     myAvatar = avatar;
 
     localStorage.setItem("chat_name", myName);
+    localStorage.setItem("chat_username", myUsername);
     localStorage.setItem("chat_avatar", myAvatar);
 
     // Сохранить профиль в Firestore
@@ -1183,6 +1228,7 @@ regButton.addEventListener("click", async () => {
         await addDoc(usersRef, {
             deviceId: deviceId,
             name: myName,
+            username: myUsername,
             avatar: myAvatar,
             createdAt: serverTimestamp()
         });
@@ -1200,7 +1246,11 @@ regButton.addEventListener("click", async () => {
     }
 
     // Загрузить всех пользователей
-    loadAllUsers();
+    await loadAllUsers();
+    
+    // Показать список чатов
+    isInChatsList = false;
+    toggleChatsList();
 });
 
 /* ===== ЗАГРУЗКА ВСЕХ ПОЛЬЗОВАТЕЛЕЙ ===== */
@@ -1229,16 +1279,16 @@ if (!isFirstLaunch){
 
 /* ===== ПОИСК ПОЛЬЗОВАТЕЛЯ ===== */
 
-function openFindUserScreen(){
+window.openFindUserScreen = function(){
     findUserScreen.classList.add("active");
     findSearchInput.focus();
     findSearchInput.value = "";
     displayUserSearchResults("");
-}
+};
 
-function closeFindUserScreen(){
+window.closeFindUserScreen = function(){
     findUserScreen.classList.remove("active");
-}
+};
 
 findSearchInput.addEventListener("input", (e) => {
     displayUserSearchResults(e.target.value);
@@ -1247,15 +1297,25 @@ findSearchInput.addEventListener("input", (e) => {
 function displayUserSearchResults(searchQuery){
     findUserContent.innerHTML = "";
 
+    if (searchQuery.length === 0){
+        findUserContent.innerHTML = `
+            <div class="find-user-empty">
+                <div class="find-user-empty-icon">🔍</div>
+                <div class="find-user-empty-text">Введи юзернейм</div>
+            </div>
+        `;
+        return;
+    }
+
     const filtered = allUsers.filter(user => 
-        user.name.toLowerCase().includes(searchQuery.toLowerCase())
+        user.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     if (filtered.length === 0){
         findUserContent.innerHTML = `
             <div class="find-user-empty">
-                <div class="find-user-empty-icon">🔍</div>
-                <div class="find-user-empty-text">Никого не найдено</div>
+                <div class="find-user-empty-icon">😕</div>
+                <div class="find-user-empty-text">Юзернейм не найден</div>
             </div>
         `;
         return;
@@ -1270,7 +1330,7 @@ function displayUserSearchResults(searchQuery){
             </div>
             <div class="user-info-small">
                 <div class="user-name-small">${user.name}</div>
-                <div class="user-device-id">${user.deviceId.slice(0, 8)}</div>
+                <div class="user-username">@${user.username}</div>
             </div>
         `;
         userEl.onclick = () => startChatWithUser(user);
@@ -1350,6 +1410,16 @@ async function loadAllChats(){
                 };
             }
         });
+
+        if (Object.keys(chatMap).length === 0){
+            chatsListItems.innerHTML = `
+                <div class="chats-empty">
+                    <div class="chats-empty-icon">💬</div>
+                    <div class="chats-empty-text">Нет чатов<br>Нажми + чтобы написать</div>
+                </div>
+            `;
+            return;
+        }
 
         // Получить имена контактов
         for (let chatId in chatMap){
