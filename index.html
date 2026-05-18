@@ -1,263 +1,565 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>iOS Web Chat</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        
-        /* Нативная изоляция экрана без position: fixed */
-        html, body {
-            height: 100vh;
-            height: 100dvh; /* Динамическая высота: сжимается при открытии клавиатуры */
-            overflow: hidden;
-            background: #f5f5f7;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-        body { 
-            display: flex; 
-            flex-direction: column; 
-        }
-        
-        /* Шапка профиля сверху */
-        #profile-header {
-            background: white;
-            padding: 12px 16px;
-            padding-top: max(12px, env(safe-area-inset-top));
-            border-bottom: 1px solid #d1d1d6;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-        #avatar-container {
-            position: relative;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #e9e9eb;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 1px solid #d1d1d6;
-        }
-        #avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        #avatar-placeholder {
-            font-size: 20px;
-            color: #8e8e93;
-        }
-        #file-input { display: none; }
-        #name-input {
-            flex: 1;
-            border: none;
-            background: #f2f2f7;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            outline: none;
-        }
+<title>iOS Web Chat</title>
 
-        /* Окно чата — теперь гибко сжимается нативной системой */
-        #chat-window { 
-            flex: 1; 
-            padding: 15px; 
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        }
-        .msg { max-width: 75%; padding: 8px 12px; border-radius: 16px; font-size: 15px; line-height: 1.4; word-break: break-word; display: flex; flex-direction: column; gap: 2px; }
-        .msg.incoming { background: #e9e9eb; align-self: flex-start; color: black; border-bottom-left-radius: 4px; }
-        .msg.outgoing { background: #007aff; align-self: flex-end; color: white; border-bottom-right-radius: 4px; }
-        
-        .msg-sender { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
-        .msg-avatar { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; background: #ccc; }
-        .msg .name { font-size: 11px; opacity: 0.7; font-weight: 600; }
-        .msg.outgoing .name { color: #e1f0ff; }
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
 
-        /* Панель ввода — использует системные безопасные отступы */
-        #input-area { 
-            display: flex; 
-            align-items: center; 
-            padding: 10px 12px; 
-            background: rgba(255, 255, 255, 0.94); 
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid #d1d1d6; 
-            gap: 8px; 
-            flex-shrink: 0;
-            
-            /* Когда клавиатура закрыта, снизу добавляется отступ под полосу iOS. */
-            /* Когда клавиатура открыта, env() сбрасывается в 0, и панель просто падает на клавиатуру */
-            padding-bottom: calc(10px + env(safe-area-inset-bottom)); 
-        }
-        #msg-input { 
-            flex: 1; 
-            padding: 8px 14px; 
-            border: 1px solid #d1d1d6; 
-            border-radius: 18px; 
-            font-size: 16px; 
-            outline: none; 
-            background: #f2f2f7; 
-        }
-        #msg-input:focus { background: white; border-color: #007aff; }
-        #send-btn { 
-            background: #007aff; 
-            color: white; 
-            border: none; 
-            height: 34px; 
-            padding: 0 16px; 
-            border-radius: 18px; 
-            font-weight: 600; 
-            font-size: 14px; 
-            cursor: pointer; 
-        }
-        #send-btn:active { opacity: 0.7; }
-    </style>
+html,body{
+    height:100vh;
+    height:100dvh;
+    overflow:hidden;
+    background:#e9edf3;
+}
+
+/* ===== ОСНОВНОЙ ЭКРАН ===== */
+
+body{
+    display:flex;
+    flex-direction:column;
+    background:
+        linear-gradient(
+            180deg,
+            #0a84ff 0%,
+            #0a84ff 22%,
+            #f3f4f8 22%,
+            #f3f4f8 100%
+        );
+}
+
+/* ===== ШАПКА ===== */
+
+#profile-header{
+    padding-top:max(14px, env(safe-area-inset-top));
+    padding-left:18px;
+    padding-right:18px;
+    padding-bottom:20px;
+
+    background:transparent;
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    flex-shrink:0;
+}
+
+/* Кнопка назад */
+
+#profile-header::before{
+    content:"‹";
+    color:white;
+    font-size:34px;
+    font-weight:300;
+    margin-right:2px;
+    line-height:1;
+}
+
+/* Аватар */
+
+#avatar-container{
+    position:relative;
+    width:56px;
+    height:56px;
+    min-width:56px;
+
+    border-radius:50%;
+    overflow:hidden;
+
+    background:#ffffff;
+    border:3px solid rgba(255,255,255,0.85);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.08);
+}
+
+#avatar-container::after{
+    content:"";
+    position:absolute;
+    right:3px;
+    top:3px;
+
+    width:10px;
+    height:10px;
+
+    background:#34c759;
+    border-radius:50%;
+    border:2px solid white;
+}
+
+#avatar-img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+#avatar-placeholder{
+    font-size:22px;
+    color:#9ca3af;
+}
+
+#file-input{
+    display:none;
+}
+
+/* Имя */
+
+#name-input{
+    flex:1;
+
+    border:none;
+    outline:none;
+
+    background:transparent;
+
+    color:white;
+    font-size:22px;
+    font-weight:600;
+
+    padding:4px 0;
+}
+
+#name-input::placeholder{
+    color:rgba(255,255,255,0.7);
+}
+
+/* ===== ЧАТ ===== */
+
+#chat-window{
+    flex:1;
+
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+
+    padding:
+        24px
+        18px
+        18px
+        18px;
+
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+
+    background:#f3f4f8;
+
+    border-top-left-radius:34px;
+    border-top-right-radius:34px;
+
+    box-shadow:
+        0 -4px 14px rgba(0,0,0,0.05);
+}
+
+/* Сообщения */
+
+.msg{
+    max-width:78%;
+    padding:12px 15px;
+
+    border-radius:22px;
+
+    font-size:15px;
+    line-height:1.45;
+
+    word-break:break-word;
+
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+
+    animation:fade .18s ease;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* Входящие */
+
+.msg.incoming{
+    align-self:flex-start;
+
+    background:white;
+    color:#222;
+
+    border-bottom-left-radius:8px;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Исходящие */
+
+.msg.outgoing{
+    align-self:flex-end;
+
+    background:linear-gradient(
+        180deg,
+        #1690ff 0%,
+        #007aff 100%
+    );
+
+    color:white;
+
+    border-bottom-right-radius:8px;
+
+    box-shadow:
+        0 4px 12px rgba(0,122,255,0.22);
+}
+
+/* Верх сообщения */
+
+.msg-sender{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    margin-bottom:2px;
+}
+
+.msg-avatar{
+    width:18px;
+    height:18px;
+
+    border-radius:50%;
+    object-fit:cover;
+
+    background:#d1d5db;
+}
+
+.msg .name{
+    font-size:11px;
+    font-weight:600;
+    opacity:0.72;
+}
+
+.msg.outgoing .name{
+    color:#dceeff;
+}
+
+/* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
+
+#input-area{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    padding:
+        10px
+        14px
+        calc(12px + env(safe-area-inset-bottom));
+
+    background:rgba(255,255,255,0.92);
+
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    border-top:1px solid rgba(0,0,0,0.05);
+
+    flex-shrink:0;
+}
+
+/* Поле */
+
+#msg-input{
+    flex:1;
+
+    height:42px;
+
+    border:none;
+    outline:none;
+
+    background:#f1f2f6;
+
+    border-radius:22px;
+
+    padding:0 16px;
+
+    font-size:16px;
+
+    transition:.15s;
+}
+
+#msg-input:focus{
+    background:white;
+    box-shadow:
+        0 0 0 2px rgba(10,132,255,0.18);
+}
+
+/* Кнопка */
+
+#send-btn{
+    min-width:42px;
+    height:42px;
+
+    border:none;
+    border-radius:50%;
+
+    background:linear-gradient(
+        180deg,
+        #1690ff 0%,
+        #007aff 100%
+    );
+
+    color:white;
+
+    font-size:14px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 4px 12px rgba(0,122,255,0.24);
+
+    transition:.12s;
+}
+
+#send-btn:active{
+    transform:scale(0.94);
+}
+
+/* Скролл */
+
+#chat-window::-webkit-scrollbar{
+    width:0;
+    height:0;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="profile-header">
-        <div id="avatar-container" onclick="document.getElementById('file-input').click()">
-            <img id="avatar-img" src="" style="display:none;">
-            <span id="avatar-placeholder">+</span>
-        </div>
-        <input type="file" id="file-input" accept="image/*">
-        <input type="text" id="name-input" placeholder="Твое имя в чате..." autocomplete="off">
+<div id="profile-header">
+
+    <div id="avatar-container" onclick="document.getElementById('file-input').click()">
+        <img id="avatar-img" src="" style="display:none;">
+        <span id="avatar-placeholder">+</span>
     </div>
 
-    <div id="chat-window"></div>
+    <input type="file" id="file-input" accept="image/*">
 
-    <div id="input-area">
-        <input type="text" id="msg-input" placeholder="Сообщение..." autocomplete="off">
-        <button id="send-btn">Отпр.</button>
-    </div>
+    <input
+        type="text"
+        id="name-input"
+        placeholder="Твое имя..."
+        autocomplete="off"
+    >
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<div id="chat-window"></div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDjrf31YqY1DZK9cFHPUDiFIZF2xcVsVZc",
-            authDomain: "ios-chat-7b9eb.firebaseapp.com",
-            projectId: "ios-chat-7b9eb",
-            storageBucket: "ios-chat-7b9eb.firebasestorage.app",
-            messagingSenderId: "175359872932",
-            appId: "1:175359872932:web:0f97b172eba4d411a0bb31",
-            measurementId: "G-0589PK5QFQ"
-        };
+<div id="input-area">
+    <input
+        type="text"
+        id="msg-input"
+        placeholder="Your messages"
+        autocomplete="off"
+    >
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const messagesRef = collection(db, "messages");
+    <button id="send-btn">➤</button>
+</div>
 
-        const nameInput = document.getElementById("name-input");
-        const fileInput = document.getElementById("file-input");
-        const avatarImg = document.getElementById("avatar-img");
-        const avatarPlaceholder = document.getElementById("avatar-placeholder");
-        const chatWindow = document.getElementById("chat-window");
-        const msgInput = document.getElementById("msg-input");
-        const sendBtn = document.getElementById("send-btn");
+<script type="module">
 
-        let myName = localStorage.getItem("chat_name") || "Юзер_" + Math.floor(Math.random() * 1000);
-        let myAvatar = localStorage.getItem("chat_avatar") || "";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
-        nameInput.value = myName;
-        if (myAvatar) {
-            avatarImg.src = myAvatar;
-            avatarImg.style.display = "block";
-            avatarPlaceholder.style.display = "none";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDjrf31YqY1DZK9cFHPUDiFIZF2xcVsVZc",
+    authDomain: "ios-chat-7b9eb.firebaseapp.com",
+    projectId: "ios-chat-7b9eb",
+    storageBucket: "ios-chat-7b9eb.firebasestorage.app",
+    messagingSenderId: "175359872932",
+    appId: "1:175359872932:web:0f97b172eba4d411a0bb31",
+    measurementId: "G-0589PK5QFQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const messagesRef = collection(db, "messages");
+
+const nameInput = document.getElementById("name-input");
+const fileInput = document.getElementById("file-input");
+const avatarImg = document.getElementById("avatar-img");
+const avatarPlaceholder = document.getElementById("avatar-placeholder");
+const chatWindow = document.getElementById("chat-window");
+const msgInput = document.getElementById("msg-input");
+const sendBtn = document.getElementById("send-btn");
+
+let myName =
+    localStorage.getItem("chat_name")
+    || "Юзер_" + Math.floor(Math.random() * 1000);
+
+let myAvatar =
+    localStorage.getItem("chat_avatar")
+    || "";
+
+nameInput.value = myName;
+
+if (myAvatar) {
+    avatarImg.src = myAvatar;
+    avatarImg.style.display = "block";
+    avatarPlaceholder.style.display = "none";
+}
+
+nameInput.addEventListener("input", () => {
+
+    myName = nameInput.value.trim() || "Аноним";
+
+    localStorage.setItem("chat_name", myName);
+
+});
+
+fileInput.addEventListener("change", (e) => {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+
+        myAvatar = reader.result;
+
+        avatarImg.src = myAvatar;
+        avatarImg.style.display = "block";
+        avatarPlaceholder.style.display = "none";
+
+        localStorage.setItem("chat_avatar", myAvatar);
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+async function sendMessage() {
+
+    const text = msgInput.value.trim();
+
+    if (!text) return;
+
+    msgInput.value = "";
+
+    try {
+
+        await addDoc(messagesRef, {
+            name: myName,
+            avatar: myAvatar,
+            text: text,
+            createdAt: serverTimestamp()
+        });
+
+    } catch (e) {
+
+        console.error("Ошибка отправки: ", e);
+
+    }
+}
+
+sendBtn.addEventListener("click", sendMessage);
+
+msgInput.addEventListener("keypress", (e) => {
+
+    if (e.key === "Enter") sendMessage();
+
+});
+
+const q = query(messagesRef, orderBy("createdAt", "asc"));
+
+onSnapshot(q, (snapshot) => {
+
+    chatWindow.innerHTML = "";
+
+    snapshot.forEach((doc) => {
+
+        const data = doc.data();
+
+        if (!data.text) return;
+
+        const msgDiv = document.createElement("div");
+
+        const isMe = data.name === myName;
+
+        msgDiv.className =
+            `msg ${isMe ? 'outgoing' : 'incoming'}`;
+
+        let avatarHTML = "";
+
+        if (data.avatar) {
+
+            avatarHTML =
+                `<img class="msg-avatar" src="${data.avatar}">`;
+
         }
 
-        nameInput.addEventListener("input", () => {
-            myName = nameInput.value.trim() || "Аноним";
-            localStorage.setItem("chat_name", myName);
-        });
+        msgDiv.innerHTML = `
+            <div class="msg-sender">
+                ${avatarHTML}
+                <span class="name">${data.name}</span>
+            </div>
 
-        fileInput.addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                myAvatar = reader.result;
-                avatarImg.src = myAvatar;
-                avatarImg.style.display = "block";
-                avatarPlaceholder.style.display = "none";
-                localStorage.setItem("chat_avatar", myAvatar);
-            };
-            reader.readAsDataURL(file);
-        });
+            <div>${data.text}</div>
+        `;
 
-        async function sendMessage() {
-            const text = msgInput.value.trim();
-            if (!text) return;
-            msgInput.value = "";
+        chatWindow.appendChild(msgDiv);
 
-            try {
-                await addDoc(messagesRef, {
-                    name: myName,
-                    avatar: myAvatar,
-                    text: text,
-                    createdAt: serverTimestamp()
-                });
-            } catch (e) {
-                console.error("Ошибка отправки: ", e);
-            }
-        }
+    });
 
-        sendBtn.addEventListener("click", sendMessage);
-        msgInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+    scrollToBottom();
 
-        const q = query(messagesRef, orderBy("createdAt", "asc"));
-        onSnapshot(q, (snapshot) => {
-            chatWindow.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                if (!data.text) return;
+});
 
-                const msgDiv = document.createElement("div");
-                const isMe = data.name === myName;
-                
-                msgDiv.className = `msg ${isMe ? 'outgoing' : 'incoming'}`;
-                
-                let avatarHTML = "";
-                if (data.avatar) {
-                    avatarHTML = `<img class="msg-avatar" src="${data.avatar}">`;
-                }
+function scrollToBottom() {
 
-                msgDiv.innerHTML = `
-                    <div class="msg-sender">
-                        ${avatarHTML}
-                        <span class="name">${data.name}</span>
-                    </div>
-                    <div>${data.text}</div>
-                `;
-                
-                chatWindow.appendChild(msgDiv);
-            });
-            
-            scrollToBottom();
-        });
+    setTimeout(() => {
 
-        function scrollToBottom() {
-            setTimeout(() => {
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            }, 50);
-        }
+        chatWindow.scrollTop =
+            chatWindow.scrollHeight;
 
-        // Авто-скролл вниз при тапе на инпут (когда клавиатура выезжает)
-        msgInput.addEventListener('focus', () => {
-            setTimeout(scrollToBottom, 300);
-        });
-    </script>
+    }, 50);
+
+}
+
+msgInput.addEventListener('focus', () => {
+
+    setTimeout(scrollToBottom, 300);
+
+});
+
+</script>
+
 </body>
 </html>
