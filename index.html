@@ -7,7 +7,6 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
-        /* Жесткая фиксация всего экрана, как ты просил */
         html, body {
             position: fixed;
             top: 0;
@@ -87,10 +86,10 @@
         .msg .name { font-size: 11px; opacity: 0.7; font-weight: 600; }
         .msg.outgoing .name { color: #e1f0ff; }
 
-        /* Нижняя панель с искусственным буфером снизу */
+        /* Твоя нижняя панель с жесткой фиксацией и динамическим смещением */
         #input-area { 
             display: flex; 
-            align-items: flex-start; /* Прижимаем инпут и кнопку к верху панели */
+            align-items: flex-start; 
             padding: 10px 12px; 
             background: rgba(255, 255, 255, 0.94); 
             -webkit-backdrop-filter: blur(20px);
@@ -99,9 +98,12 @@
             gap: 8px; 
             flex-shrink: 0;
             
-            /* Делаем панель повыше и даем большой отступ снизу, который уйдет за экран */
             height: 90px; 
-            padding-bottom: 40px; 
+            padding-bottom: 40px;
+            
+            /* Плавный переход при появлении клавиатуры */
+            transition: transform 0.1s ease-out; 
+            will-change: transform;
         }
         #msg-input { 
             flex: 1; 
@@ -117,7 +119,7 @@
             background: #007aff; 
             color: white; 
             border: none; 
-            height: 34px; /* Фиксируем высоту кнопки под инпут */
+            height: 34px; 
             padding: 0 16px; 
             border-radius: 18px; 
             font-weight: 600; 
@@ -170,6 +172,7 @@
         const chatWindow = document.getElementById("chat-window");
         const msgInput = document.getElementById("msg-input");
         const sendBtn = document.getElementById("send-btn");
+        const inputArea = document.getElementById("input-area");
 
         let myName = localStorage.getItem("chat_name") || "Юзер_" + Math.floor(Math.random() * 1000);
         let myAvatar = localStorage.getItem("chat_avatar") || "";
@@ -248,15 +251,41 @@
                 chatWindow.appendChild(msgDiv);
             });
             
+            scrollToBottom();
+        });
+
+        function scrollToBottom() {
             setTimeout(() => {
                 chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
             }, 50);
-        });
+        }
 
-        // Полностью исключаем любое смещение экрана при скролле
+        // Фикс прокрутки body
         window.addEventListener('scroll', (e) => {
             window.scrollTo(0, 0);
         });
+
+        /* ========================================================
+           МАГИЯ ДЛЯ ИСПРАВЛЕНИЯ КЛАВИАТУРЫ НА IOS (VisualViewport)
+           ======================================================== */
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                // Вычисляем, насколько уменьшилась видимая зона (высота клавиатуры)
+                const keyboardHeight = window.innerHeight - window.visualViewport.height;
+                
+                if (keyboardHeight > 0) {
+                    // Клавиатура открыта: сдвигаем инпут-панель вверх на высоту клавиатуры
+                    // Убираем нижний запас (40px), так как клавиатура сама подпирает снизу
+                    inputArea.style.transform = `translateY(-${keyboardHeight - 40}px)`;
+                } else {
+                    // Клавиатура закрыта: возвращаем панель на место
+                    inputArea.style.transform = 'translateY(0)';
+                }
+                
+                // Дополнительно пушим скролл чата вниз, чтобы текст не прятался
+                scrollToBottom();
+            });
+        }
     </script>
 </body>
 </html>
