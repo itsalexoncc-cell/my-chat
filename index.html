@@ -106,6 +106,12 @@ body{
     font-weight:300;
     margin-right:2px;
     line-height:1;
+    cursor:pointer;
+    transition:.15s;
+}
+
+#profile-header::before:active{
+    opacity:0.7;
 }
 
 /* ===== АВАТАР ===== */
@@ -170,6 +176,15 @@ body{
     color:rgba(255,255,255,0.7);
 }
 
+/* ===== ОСНОВНОЙ КОНТЕНТ ===== */
+
+#main-content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+}
+
 /* ===== ЧАТ ===== */
 
 #chat-window{
@@ -198,6 +213,79 @@ body{
         0 -4px 14px rgba(0,0,0,0.05);
 }
 
+#chat-window.hidden{
+    display:none;
+}
+
+/* ===== СПИСОК ЧАТОВ ===== */
+
+#chats-list{
+    flex:1;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:24px 18px 18px 18px;
+    display:none;
+    flex-direction:column;
+    gap:12px;
+    background:#f3f4f8;
+    border-top-left-radius:34px;
+    border-top-right-radius:34px;
+    box-shadow:0 -4px 14px rgba(0,0,0,0.05);
+}
+
+#chats-list.active{
+    display:flex;
+}
+
+.chat-item{
+    padding:16px;
+    background:white;
+    border-radius:22px;
+    cursor:pointer;
+    transition:.15s;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.chat-item:active{
+    transform:scale(0.98);
+    background:#f9f9f9;
+}
+
+.chat-item-avatar{
+    width:48px;
+    height:48px;
+    min-width:48px;
+    border-radius:50%;
+    background:#e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    object-fit:cover;
+}
+
+.chat-item-info{
+    flex:1;
+    min-width:0;
+}
+
+.chat-item-name{
+    font-size:16px;
+    font-weight:600;
+    color:#222;
+    margin-bottom:4px;
+}
+
+.chat-item-preview{
+    font-size:13px;
+    color:#999;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
 
 /* ===== СООБЩЕНИЯ ===== */
 
@@ -229,6 +317,12 @@ body{
         opacity:1;
         transform:translateY(0);
     }
+}
+
+@keyframes borderFlow{
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* ===== ВХОДЯЩИЕ ===== */
@@ -304,6 +398,66 @@ body{
     display:block;
 }
 
+/* ===== ФОТО ПРЕВЬЮ ===== */
+
+.photo-preview{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    padding:2px 0;
+    user-select:none;
+}
+
+.photo-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#f3f4f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    transition:.15s;
+}
+
+.photo-preview:active .photo-icon{
+    transform:scale(0.92);
+}
+
+.msg.outgoing .photo-icon{
+    background:rgba(255,255,255,0.25);
+}
+
+.msg.outgoing .photo-icon polygon{
+    fill:white;
+}
+
+.photo-preview span{
+    font-size:14px;
+    font-weight:500;
+    opacity:0.8;
+}
+
+/* ===== РАЗВОРАЧИВАЕМОЕ ФОТО ===== */
+
+.photo-full{
+    width:100%;
+    border-radius:16px;
+    margin-top:6px;
+    display:block;
+    max-height:0;
+    opacity:0;
+    overflow:hidden;
+    transition:max-height 0.4s ease, opacity 0.4s ease, margin-top 0.4s ease;
+}
+
+.photo-full.open{
+    max-height:400px;
+    opacity:1;
+}
+
 /* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
 
 #input-area{
@@ -323,11 +477,15 @@ body{
     -webkit-backdrop-filter:blur(18px);
 
     border-top:1px solid rgba(0,0,0,0.05);
-    
+
     border-bottom-left-radius:34px;
     border-bottom-right-radius:34px;
 
     flex-shrink:0;
+}
+
+#input-area.hidden{
+    display:none;
 }
 
 /* ===== ИНПУТ ===== */
@@ -347,14 +505,9 @@ body{
         linear-gradient(90deg, #bf5af2, #ff375f, #ff9f0a, #30d158, #0a84ff, #bf5af2);
     background-origin:border-box;
     background-clip:padding-box, border-box;
-    background-size: 300% 300%;
+    background-size:300% 300%;
 
-    animation: borderFlow 4s ease infinite;
-}
-    @keyframes borderFlow{
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    animation:borderFlow 4s ease infinite;
 }
 
 /* ===== КНОПКА ФОТО ===== */
@@ -381,14 +534,8 @@ body{
 }
 
 #image-btn:active{
-
-    transform:scale(0.92);
-
-    background:#e5e7eb;
-}
-
-#image-btn:active{
     transform:scale(0.95);
+    background:#e5e7eb;
 }
 
 /* ===== КНОПКА ОТПРАВКИ ===== */
@@ -432,6 +579,11 @@ body{
     height:0;
 }
 
+#chats-list::-webkit-scrollbar{
+    width:0;
+    height:0;
+}
+
 </style>
 </head>
 
@@ -465,9 +617,17 @@ body{
 
 </div>
 
-<!-- ===== ЧАТ ===== -->
+<!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
 
-<div id="chat-window"></div>
+<div id="main-content">
+
+    <!-- ===== ЧАТ ===== -->
+    <div id="chat-window"></div>
+
+    <!-- ===== СПИСОК ЧАТОВ ===== -->
+    <div id="chats-list"></div>
+
+</div>
 
 <!-- ===== НИЖНЯЯ ПАНЕЛЬ ===== -->
 
@@ -533,7 +693,8 @@ import {
     query,
     orderBy,
     onSnapshot,
-    serverTimestamp
+    serverTimestamp,
+    where
 }
 from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -579,6 +740,9 @@ document.getElementById("avatar-placeholder");
 const chatWindow =
 document.getElementById("chat-window");
 
+const chatsList =
+document.getElementById("chats-list");
+
 const msgInput =
 document.getElementById("msg-input");
 
@@ -591,7 +755,13 @@ document.getElementById("image-btn");
 const imageInput =
 document.getElementById("image-input");
 
-/* ===== УНИКАЛЬНЫЙ ID УСТРОЙСТВА ===== */
+const inputArea =
+document.getElementById("input-area");
+
+const profileHeader =
+document.getElementById("profile-header");
+
+/* ===== ПЕРЕМЕННЫЕ СОСТОЯНИЯ ===== */
 
 let deviceId =
 localStorage.getItem("device_id");
@@ -606,8 +776,6 @@ if (!deviceId){
     );
 }
 
-/* ===== ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ===== */
-
 let myName =
 localStorage.getItem("chat_name")
 || "Юзер_" + Math.floor(Math.random() * 1000);
@@ -615,6 +783,11 @@ localStorage.getItem("chat_name")
 let myAvatar =
 localStorage.getItem("chat_avatar")
 || "";
+
+let currentChatId = null;
+let isInChatsList = false;
+let allChats = {};
+let unsubscribeFunctions = {};
 
 /* ===== ЗАГРУЗКА ===== */
 
@@ -627,6 +800,38 @@ if (myAvatar){
     avatarImg.style.display = "block";
 
     avatarPlaceholder.style.display = "none";
+}
+
+/* ===== ОБРАБОТКА КЛИКА НА СТРЕЛКУ ===== */
+
+profileHeader.addEventListener("click", (e) => {
+    if (e.target === profileHeader || (profileHeader.contains(e.target) && !e.target.id && e.offsetX < 40)) {
+        toggleChatsList();
+    }
+}, true);
+
+function toggleChatsList(){
+    
+    isInChatsList = !isInChatsList;
+    
+    if (isInChatsList){
+        
+        chatWindow.classList.add("hidden");
+        inputArea.classList.add("hidden");
+        chatsList.classList.add("active");
+        currentChatId = null;
+        
+        loadAllChats();
+        
+    } else {
+        
+        if (currentChatId){
+            chatWindow.classList.remove("hidden");
+            inputArea.classList.remove("hidden");
+        }
+        
+        chatsList.classList.remove("active");
+    }
 }
 
 /* ===== ИЗМЕНЕНИЕ ИМЕНИ ===== */
@@ -681,7 +886,7 @@ async function sendMessage(){
     const text =
     msgInput.value.trim();
 
-    if (!text) return;
+    if (!text || !currentChatId) return;
 
     msgInput.value = "";
 
@@ -696,6 +901,8 @@ async function sendMessage(){
             avatar: myAvatar,
 
             text: text,
+
+            chatId: currentChatId,
 
             createdAt: serverTimestamp()
         });
@@ -742,7 +949,7 @@ async (e) => {
     const file =
     e.target.files[0];
 
-    if (!file) return;
+    if (!file || !currentChatId) return;
 
     const reader =
     new FileReader();
@@ -762,6 +969,8 @@ async (e) => {
 
                 image: reader.result,
 
+                chatId: currentChatId,
+
                 createdAt: serverTimestamp()
             });
 
@@ -778,78 +987,207 @@ async (e) => {
 
 });
 
-/* ===== ЗАГРУЗКА СООБЩЕНИЙ ===== */
+/* ===== РАСКРЫТИЕ ФОТО ===== */
 
-const q =
-query(
-    messagesRef,
-    orderBy("createdAt", "asc")
-);
+window.togglePhoto = function(preview){
 
-onSnapshot(q, (snapshot) => {
+    const img = preview.nextElementSibling;
 
-    chatWindow.innerHTML = "";
+    img.classList.add('open');
 
-    snapshot.forEach((doc) => {
+    clearTimeout(img._timer);
 
-        const data = doc.data();
+    img._timer = setTimeout(() => {
+        img.classList.remove('open');
+    }, 5000);
+};
 
-        if (!data.text && !data.image)
-        return;
+/* ===== ЗАГРУЗКА ВСЕХ ЧАТОВ ===== */
 
-        const msgDiv =
-        document.createElement("div");
-
-        const isMe =
-        data.deviceId === deviceId;
-
-        msgDiv.className =
-        `msg ${isMe ? 'outgoing' : 'incoming'}`;
-
-        let avatarHTML = "";
-
-        if (data.avatar){
-
-            avatarHTML =
-            `<img class="msg-avatar"
-            src="${data.avatar}">`;
-        }
-
-        msgDiv.innerHTML = `
-
-            <div class="msg-sender">
-
-                ${avatarHTML}
-
-                <span class="name">
-                    ${data.name}
-                </span>
-
-            </div>
-
-            ${data.text
-                ? `<div>${data.text}</div>`
-                : ""
+function loadAllChats(){
+    
+    chatsList.innerHTML = "";
+    
+    const q = query(
+        messagesRef,
+        orderBy("createdAt", "desc")
+    );
+    
+    onSnapshot(q, (snapshot) => {
+        
+        allChats = {};
+        
+        snapshot.forEach((doc) => {
+            
+            const data = doc.data();
+            const chatId = data.chatId;
+            
+            if (!allChats[chatId]){
+                
+                allChats[chatId] = {
+                    id: chatId,
+                    latestMessage: data,
+                    participants: new Set()
+                };
             }
-
-            ${data.image
-                ? `
-                <img
-                    src="${data.image}"
-                    class="chat-image">
-                `
-                : ""
-            }
-
-        `;
-
-        chatWindow.appendChild(msgDiv);
-
+            
+            allChats[chatId].participants.add(data.name);
+        });
+        
+        displayChatsList();
     });
+}
 
-    scrollToBottom();
+function displayChatsList(){
+    
+    chatsList.innerHTML = "";
+    
+    const chatsArray = Object.values(allChats)
+        .sort((a, b) => {
+            
+            const timeA = a.latestMessage.createdAt?.toMillis?.() || 0;
+            const timeB = b.latestMessage.createdAt?.toMillis?.() || 0;
+            return timeB - timeA;
+        });
+    
+    if (chatsArray.length === 0){
+        
+        chatsList.innerHTML = `
+            <div style="
+                text-align: center;
+                color: #999;
+                padding: 40px 20px;
+                font-size: 16px;
+            ">
+                Нет чатов. Начните общаться!
+            </div>
+        `;
+        return;
+    }
+    
+    chatsArray.forEach((chatData) => {
+        
+        const chatItem = document.createElement("div");
+        chatItem.className = "chat-item";
+        
+        const participants = Array.from(chatData.participants);
+        const displayName = participants.join(", ");
+        
+        let preview = chatData.latestMessage.text || "📷 Фото";
+        if (preview.length > 40){
+            preview = preview.substring(0, 40) + "...";
+        }
+        
+        const avatarLetter = displayName.charAt(0).toUpperCase();
+        
+        chatItem.innerHTML = `
+            <div class="chat-item-avatar">
+                ${avatarLetter}
+            </div>
+            <div class="chat-item-info">
+                <div class="chat-item-name">${displayName}</div>
+                <div class="chat-item-preview">${preview}</div>
+            </div>
+        `;
+        
+        chatItem.addEventListener("click", () => {
+            openChat(chatData.id);
+        });
+        
+        chatsList.appendChild(chatItem);
+    });
+}
 
-});
+/* ===== ОТКРЫТИЕ ЧАТА ===== */
+
+function openChat(chatId){
+    
+    currentChatId = chatId;
+    isInChatsList = false;
+    
+    chatWindow.classList.remove("hidden");
+    inputArea.classList.remove("hidden");
+    chatsList.classList.remove("active");
+    
+    if (unsubscribeFunctions[chatId]){
+        unsubscribeFunctions[chatId]();
+    }
+    
+    const q = query(
+        messagesRef,
+        where("chatId", "==", chatId),
+        orderBy("createdAt", "asc")
+    );
+    
+    unsubscribeFunctions[chatId] = onSnapshot(q, (snapshot) => {
+        
+        chatWindow.innerHTML = "";
+        
+        snapshot.forEach((doc) => {
+            
+            const data = doc.data();
+            
+            if (!data.text && !data.image)
+            return;
+            
+            const msgDiv =
+            document.createElement("div");
+            
+            const isMe =
+            data.deviceId === deviceId;
+            
+            msgDiv.className =
+            `msg ${isMe ? 'outgoing' : 'incoming'}`;
+            
+            let avatarHTML = "";
+            
+            if (data.avatar){
+                
+                avatarHTML =
+                `<img class="msg-avatar"
+                src="${data.avatar}">`;
+            }
+            
+            msgDiv.innerHTML = `
+                
+                <div class="msg-sender">
+                    
+                    ${avatarHTML}
+                    
+                    <span class="name">
+                        ${data.name}
+                    </span>
+                    
+                </div>
+                
+                ${data.text
+                    ? `<div>${data.text}</div>`
+                    : ""
+                }
+                
+                ${data.image
+                    ? `
+                    <div class="photo-preview" onclick="togglePhoto(this)">
+                        <div class="photo-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <polygon points="6,4 20,12 6,20" fill="#6b7280"/>
+                            </svg>
+                        </div>
+                        <span>Фото</span>
+                    </div>
+                    <img src="${data.image}" class="photo-full">
+                    `
+                    : ""
+                }
+                
+            `;
+            
+            chatWindow.appendChild(msgDiv);
+        });
+        
+        scrollToBottom();
+    });
+}
 
 /* ===== СКРОЛЛ ВНИЗ ===== */
 
@@ -874,6 +1212,13 @@ msgInput.addEventListener(
         300
     );
 
+});
+
+/* ===== ИНИЦИАЛИЗАЦИЯ ===== */
+
+window.addEventListener('load', () => {
+    
+    loadAllChats();
 });
 
 </script>
