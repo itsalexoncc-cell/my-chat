@@ -324,8 +324,6 @@ body{
 
     border-top:1px solid rgba(0,0,0,0.05);
     
-    border-top-left-radius:34px;
-    border-top-right-radius:34px;
     border-bottom-left-radius:34px;
     border-bottom-right-radius:34px;
 
@@ -335,30 +333,28 @@ body{
 /* ===== ИНПУТ ===== */
 
 #msg-input{
-
     flex:1;
-
     height:42px;
-
-    border:none;
+    border:2px solid transparent;
     outline:none;
-
-    background:#f1f2f6;
-
     border-radius:22px;
-
     padding:0 16px;
-
     font-size:16px;
-
     transition:.15s;
+
+    background-image:
+        linear-gradient(#f1f2f6, #f1f2f6),
+        linear-gradient(90deg, #bf5af2, #ff375f, #ff9f0a, #30d158, #0a84ff, #bf5af2);
+    background-origin:border-box;
+    background-clip:padding-box, border-box;
+    background-size: 300% 300%;
+
+    animation: borderFlow 4s ease infinite;
 }
-
-#msg-input:focus{
-    background:white;
-
-    box-shadow:
-        0 0 0 2px rgba(10,132,255,0.18);
+    @keyframes borderFlow{
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* ===== КНОПКА ФОТО ===== */
