@@ -1084,7 +1084,7 @@ regFileInput.addEventListener("change", (e) => {
 
 regButton.addEventListener("click", async () => {
     const name     = regNameInput.value.trim()     || "Аноним";
-    const username = regUsernameInput.value.trim() || "user_" + Math.random().toString(36).slice(2, 8);
+    const username = regUsernameInput.value.trim().replace(/^@+/, "") || "user_" + Math.random().toString(36).slice(2, 8);
     const avatar   = regAvatarImg.style.display === "block" ? regAvatarImg.src : "";
 
     myName     = name;
