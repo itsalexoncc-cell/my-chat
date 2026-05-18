@@ -1113,6 +1113,7 @@ regButton.addEventListener("click", async () => {
     updateHeader('me');
 
     await loadAllUsers();
+    subscribeAllUsers();
     showChatsList();
 });
 
@@ -1301,10 +1302,19 @@ function renderChatsList(chatMap) {
 
     for (const chatId in chatMap) {
         const chat = chatMap[chatId];
+
+        // Ищем по deviceId — теперь docSnap.id === deviceId (благодаря setDoc)
         const contactUser = allUsers.find(u => u.deviceId === chat.contactDeviceId);
 
-        const name   = contactUser ? contactUser.name   : "Unknown";
+        const name   = contactUser ? contactUser.name   : chat.contactDeviceId.slice(0, 8) + "…";
         const avatar = contactUser ? contactUser.avatar : "";
+
+        // Строим полный объект контакта для showChat
+        const contactObj = contactUser || {
+            name:     name,
+            avatar:   "",
+            deviceId: chat.contactDeviceId
+        };
 
         const el = document.createElement("div");
         el.className = "chat-item";
@@ -1318,10 +1328,7 @@ function renderChatsList(chatMap) {
                 <div class="chat-item-name">${name}</div>
                 <div class="chat-item-preview">${chat.lastMessage}</div>
             </div>`;
-        el.onclick = () => {
-            const contact = contactUser || { name: "Unknown", avatar: "", deviceId: chat.contactDeviceId };
-            showChat(chatId, contact);
-        };
+        el.onclick = () => showChat(chatId, contactObj);
         chatsListItems.appendChild(el);
     }
 }
@@ -1354,10 +1361,11 @@ function addChatToList(chatId, user) {
 
 /* ===== ЗАГРУЗКА ЧАТА (REALTIME) ===== */
 
-function buildMsgEl(msg) {
+function buildMsgEl(msg, animate = false) {
     const isOutgoing = msg.deviceId === deviceId;
     const msgEl = document.createElement("div");
-    msgEl.className = `msg ${isOutgoing ? 'outgoing' : 'incoming'}`;
+    // animate-in добавляем только для новых сообщений, не для истории
+    msgEl.className = `msg ${isOutgoing ? 'outgoing' : 'incoming'}${animate ? ' msg-fly' : ''}`;
 
     const avatarSrc = msg.avatar || "";
     let content = `
@@ -1393,56 +1401,69 @@ function loadChat(chatId) {
 
     chatWindow.innerHTML = "";
 
-    // КЛЮЧЕВОЙ ФИX: слушаем изменения по типу (added/modified/removed)
-    // вместо полного перерисовывания на каждый снимок.
-    // Это решает проблему с serverTimestamp — Firebase сначала возвращает
-    // локальный timestamp, потом обновляет его серверным. Без этого
-    // сообщение исчезало и снова появлялось, создавая дубли.
     const renderedIds = new Set();
+    let initialLoadDone = false;
 
+    // ВАЖНО: убираем orderBy из запроса — это требует составного индекса
+    // в Firebase консоли, без него onSnapshot молча не работает.
+    // Сортируем сообщения локально по createdAt.
     const q = query(
         messagesRef,
-        where("chatId", "==", chatId),
-        orderBy("createdAt", "asc")
+        where("chatId", "==", chatId)
     );
 
     unsubscribeChat = onSnapshot(q, (snapshot) => {
-        let needsScroll = false;
+        if (!initialLoadDone) {
+            // Первый снимок — рисуем всю историю, сортируем локально
+            const msgs = [];
+            snapshot.forEach(docSnap => {
+                msgs.push({ id: docSnap.id, data: docSnap.data() });
+                renderedIds.add(docSnap.id);
+            });
 
-        snapshot.docChanges().forEach(change => {
-            const msg  = change.doc.data();
-            const docId = change.doc.id;
+            // Сортируем по createdAt (может быть null у только что отправленных)
+            msgs.sort((a, b) => {
+                const ta = a.data.createdAt?.toMillis?.() ?? Date.now();
+                const tb = b.data.createdAt?.toMillis?.() ?? Date.now();
+                return ta - tb;
+            });
 
-            if (change.type === "added") {
-                // Новое сообщение — добавить в конец
-                if (!renderedIds.has(docId)) {
-                    renderedIds.add(docId);
-                    const el = buildMsgEl(msg);
-                    el.dataset.msgId = docId;
-                    chatWindow.appendChild(el);
-                    needsScroll = true;
-                }
-            } else if (change.type === "modified") {
-                // serverTimestamp обновился — ничего в UI менять не нужно,
-                // сообщение уже показано (по локальному timestamp).
-                // Но если по какой-то причине нет — добавим.
-                if (!renderedIds.has(docId)) {
-                    renderedIds.add(docId);
-                    const el = buildMsgEl(msg);
-                    el.dataset.msgId = docId;
-                    chatWindow.appendChild(el);
-                    needsScroll = true;
-                }
-            } else if (change.type === "removed") {
-                renderedIds.delete(docId);
-                const existing = chatWindow.querySelector(`[data-msg-id="${docId}"]`);
-                if (existing) existing.remove();
-            }
-        });
+            msgs.forEach(({ id, data }) => {
+                const el = buildMsgEl(data, false);
+                el.dataset.msgId = id;
+                chatWindow.appendChild(el);
+            });
 
-        if (needsScroll) {
             chatWindow.scrollTop = chatWindow.scrollHeight;
+            initialLoadDone = true;
+
+        } else {
+            // Последующие снимки — только новые сообщения
+            let needsScroll = false;
+
+            snapshot.docChanges().forEach(change => {
+                const msg   = change.doc.data();
+                const docId = change.doc.id;
+
+                if ((change.type === "added" || change.type === "modified") && !renderedIds.has(docId)) {
+                    renderedIds.add(docId);
+                    const el = buildMsgEl(msg, true); // с анимацией влёта
+                    el.dataset.msgId = docId;
+                    chatWindow.appendChild(el);
+                    needsScroll = true;
+                } else if (change.type === "removed") {
+                    renderedIds.delete(docId);
+                    const existing = chatWindow.querySelector(`[data-msg-id="${docId}"]`);
+                    if (existing) existing.remove();
+                }
+            });
+
+            if (needsScroll) {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
         }
+    }, (error) => {
+        console.error("Ошибка onSnapshot:", error);
     });
 }
 
