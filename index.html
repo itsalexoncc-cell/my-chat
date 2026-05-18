@@ -198,7 +198,6 @@ body{
         0 -4px 14px rgba(0,0,0,0.05);
 }
 
-
 /* ===== СООБЩЕНИЯ ===== */
 
 .msg{
@@ -229,6 +228,12 @@ body{
         opacity:1;
         transform:translateY(0);
     }
+}
+
+@keyframes borderFlow{
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* ===== ВХОДЯЩИЕ ===== */
@@ -304,6 +309,66 @@ body{
     display:block;
 }
 
+/* ===== ФОТО ПРЕВЬЮ ===== */
+
+.photo-preview{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    padding:2px 0;
+    user-select:none;
+}
+
+.photo-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#f3f4f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    transition:.15s;
+}
+
+.photo-preview:active .photo-icon{
+    transform:scale(0.92);
+}
+
+.msg.outgoing .photo-icon{
+    background:rgba(255,255,255,0.25);
+}
+
+.msg.outgoing .photo-icon polygon{
+    fill:white;
+}
+
+.photo-preview span{
+    font-size:14px;
+    font-weight:500;
+    opacity:0.8;
+}
+
+/* ===== РАЗВОРАЧИВАЕМОЕ ФОТО ===== */
+
+.photo-full{
+    width:100%;
+    border-radius:16px;
+    margin-top:6px;
+    display:block;
+    max-height:0;
+    opacity:0;
+    overflow:hidden;
+    transition:max-height 0.4s ease, opacity 0.4s ease, margin-top 0.4s ease;
+}
+
+.photo-full.open{
+    max-height:400px;
+    opacity:1;
+}
+
 /* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
 
 #input-area{
@@ -323,7 +388,7 @@ body{
     -webkit-backdrop-filter:blur(18px);
 
     border-top:1px solid rgba(0,0,0,0.05);
-    
+
     border-bottom-left-radius:34px;
     border-bottom-right-radius:34px;
 
@@ -347,14 +412,9 @@ body{
         linear-gradient(90deg, #bf5af2, #ff375f, #ff9f0a, #30d158, #0a84ff, #bf5af2);
     background-origin:border-box;
     background-clip:padding-box, border-box;
-    background-size: 300% 300%;
+    background-size:300% 300%;
 
-    animation: borderFlow 4s ease infinite;
-}
-    @keyframes borderFlow{
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    animation:borderFlow 4s ease infinite;
 }
 
 /* ===== КНОПКА ФОТО ===== */
@@ -381,14 +441,8 @@ body{
 }
 
 #image-btn:active{
-
-    transform:scale(0.92);
-
-    background:#e5e7eb;
-}
-
-#image-btn:active{
     transform:scale(0.95);
+    background:#e5e7eb;
 }
 
 /* ===== КНОПКА ОТПРАВКИ ===== */
@@ -778,6 +832,21 @@ async (e) => {
 
 });
 
+/* ===== РАСКРЫТИЕ ФОТО ===== */
+
+window.togglePhoto = function(preview){
+
+    const img = preview.nextElementSibling;
+
+    img.classList.add('open');
+
+    clearTimeout(img._timer);
+
+    img._timer = setTimeout(() => {
+        img.classList.remove('open');
+    }, 5000);
+};
+
 /* ===== ЗАГРУЗКА СООБЩЕНИЙ ===== */
 
 const q =
@@ -834,9 +903,15 @@ onSnapshot(q, (snapshot) => {
 
             ${data.image
                 ? `
-                <img
-                    src="${data.image}"
-                    class="chat-image">
+                <div class="photo-preview" onclick="togglePhoto(this)">
+                    <div class="photo-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <polygon points="6,4 20,12 6,20" fill="#6b7280"/>
+                        </svg>
+                    </div>
+                    <span>Фото</span>
+                </div>
+                <img src="${data.image}" class="photo-full">
                 `
                 : ""
             }
