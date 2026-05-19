@@ -1279,7 +1279,22 @@ regFileInput.addEventListener("change", (e) => {
             canvas.width = size;
             canvas.height = size;
 
-            ctx.drawImage(img, 0, 0, size, size);
+            const minSide = Math.min(img.width, img.height);
+
+const sx = (img.width  - minSide) / 2;
+const sy = (img.height - minSide) / 2;
+
+ctx.drawImage(
+    img,
+    sx,
+    sy,
+    minSide,
+    minSide,
+    0,
+    0,
+    size,
+    size
+);
 
             const compressedAvatar =
                 canvas.toDataURL("image/jpeg", 0.7);
@@ -1684,7 +1699,22 @@ fileInput.addEventListener("change", (e) => {
             canvas.width = size;
             canvas.height = size;
 
-            ctx.drawImage(img, 0, 0, size, size);
+            const minSide = Math.min(img.width, img.height);
+
+const sx = (img.width  - minSide) / 2;
+const sy = (img.height - minSide) / 2;
+
+ctx.drawImage(
+    img,
+    sx,
+    sy,
+    minSide,
+    minSide,
+    0,
+    0,
+    size,
+    size
+);
 
             myAvatar = canvas.toDataURL("image/jpeg", 0.7);
 
