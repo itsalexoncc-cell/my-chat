@@ -1977,13 +1977,13 @@ imageInput.addEventListener("change", async (e) => {
                 /* ===== ОТПРАВКА ===== */
 
                 await addDoc(messagesRef, {
-                    deviceId: deviceId,
-                    name: myName,
-                    avatar: myAvatar
-                    image: compressedImage,
-                    chatiId: currentChatId,
-                    createdAt: serverTimestamp()
-                });
+    deviceId: deviceId,
+    name: myName,
+    avatar: myAvatar,
+    image: compressedImage,
+    chatId: currentChatId,
+    createdAt: serverTimestamp()
+});
 
             } catch (e) {
 
