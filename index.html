@@ -157,7 +157,7 @@ body{
 
 .reg-input{
     padding:14px 16px;
-    border:2px solid rgba(255,255,255,0.2);
+    border:none;
     border-radius:21px;
     background:rgba(255,255,255,0.1);
     color:white;
@@ -188,7 +188,6 @@ body{
     cursor:pointer;
     transition:.15s;
     box-shadow:0 8px 16px rgba(0,0,0,0.15);
-    disabled:opacity:0.5;
 }
 
 .reg-button:active:not(:disabled){
@@ -215,7 +214,7 @@ body{
     position:relative;
 }
 
-/* Кнопка назад */
+/* К��опка назад */
 #back-btn{
     color:white;
     font-size:34px;
@@ -401,7 +400,7 @@ body{
 }
 
 .chat-item{
-    padding:12px;
+    padding:0;
     background:white;
     border-radius:24px;
     cursor:pointer;
@@ -409,8 +408,9 @@ body{
     box-shadow:0 2px 8px rgba(0,0,0,0.04);
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:0;
     flex-shrink:0;
+    overflow:hidden;
 }
 
 .chat-item:active{
@@ -429,18 +429,21 @@ body{
     justify-content:center;
     font-size:20px;
     overflow:hidden;
-    flex-shrink:0;
+    margin:12px;
 }
 
 .chat-item-avatar img{
     width:100%;
     height:100%;
     object-fit:cover;
+    border-radius:50%;
 }
 
 .chat-item-info{
     flex:1;
     min-width:0;
+    padding:12px 0;
+    padding-right:12px;
 }
 
 .chat-item-name{
@@ -581,6 +584,7 @@ body{
     width:100%;
     height:100%;
     object-fit:cover;
+    border-radius:50%;
 }
 
 .user-info-small{
@@ -840,7 +844,7 @@ body{
 
 .modal-dialog{
     background:white;
-    border-radius:18px;
+    border-radius:21px;
     padding:24px;
     max-width:280px;
     width:100%;
@@ -874,7 +878,7 @@ body{
     flex:1;
     padding:12px;
     border:none;
-    border-radius:12px;
+    border-radius:21px;
     font-size:15px;
     font-weight:600;
     cursor:pointer;
@@ -939,7 +943,7 @@ body{
             <input type="text" id="reg-username-input" class="reg-input" placeholder="@username">
         </div>
 
-        <button id="reg-button" class="reg-button">Начать</button>
+        <button id="reg-button" class="reg-button" disabled>Начать</button>
     </div>
     <input type="file" id="reg-file-input" accept="image/*" style="display:none;">
 </div>
@@ -956,7 +960,7 @@ body{
     <input type="file" id="file-input" accept="image/*" style="display:none;">
 
     <div id="header-name"></div>
-    
+
     <button id="delete-chat-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M19 6.4L5.4 20M5 6.4L18.6 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1003,261 +1007,716 @@ body{
     <button id="send-btn">➤</button>
 </div>
 
-<script>
-// ===== ДАННЫЕ =====
-let userData = null;
-let currentChatId = null;
-let chats = {};
-let messages = {};
+<!-- ===== МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ===== -->
+<div class="modal-overlay" id="delete-modal">
+    <div class="modal-dialog">
+        <div class="modal-title">Удалить чат?</div>
+        <div class="modal-text">Это действие нельзя отменить</div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('delete-modal').classList.remove('active')">Отмена</button>
+            <button class="modal-btn modal-btn-delete" onclick="window.confirmDeleteChat()">Удалить</button>
+        </div>
+    </div>
+</div>
 
-// ===== РЕГИСТРАЦИЯ =====
-document.getElementById('reg-button').addEventListener('click', function() {
-    const name = document.getElementById('reg-name-input').value.trim();
-    const username = document.getElementById('reg-username-input').value.trim();
-    
-    if (!name || !username) {
-        alert('Пожалуйста заполни все поля!');
-        return;
-    }
-    
-    const regAvatarImg = document.getElementById('reg-avatar-img');
-    const avatar = regAvatarImg.style.display !== 'none' ? regAvatarImg.src : '👤';
-    
-    userData = {
-        name: name,
-        username: username,
-        avatar: avatar,
-        userId: Math.random().toString(36).substr(2, 9)
-    };
-    
-    localStorage.setItem('userData', JSON.stringify(userData));
-    localStorage.setItem('chats', JSON.stringify(chats));
-    localStorage.setItem('messages', JSON.stringify(messages));
-    
-    completeRegistration();
-});
+<script type="module">
 
-// ===== ЗАГРУЗКА АВАТАРА В РЕГИСТРАЦИИ =====
-document.getElementById('reg-file-input').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = document.getElementById('reg-avatar-img');
-            img.src = event.target.result;
-            img.style.display = 'block';
-            document.getElementById('reg-avatar-placeholder').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    }
-});
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
-// ===== ЗАВЕРШЕНИЕ РЕГИСТРАЦИИ =====
-function completeRegistration() {
-    document.getElementById('registration-screen').classList.add('hidden');
-    document.getElementById('header-name').textContent = userData.name;
-    
-    if (userData.avatar !== '👤') {
-        document.getElementById('avatar-img').src = userData.avatar;
-        document.getElementById('avatar-img').style.display = 'block';
-        document.getElementById('avatar-placeholder').style.display = 'none';
-    }
-    
-    document.getElementById('chats-list').classList.add('active');
-    updateChatsList();
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    setDoc,
+    doc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp,
+    where,
+    deleteDoc
+}
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+/* ===== FIREBASE ===== */
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDjrf31YqY1DZK9cFHPUDiFIZF2xcVsVZc",
+    authDomain: "ios-chat-7b9eb.firebaseapp.com",
+    projectId: "ios-chat-7b9eb",
+    storageBucket: "ios-chat-7b9eb.firebasestorage.app",
+    messagingSenderId: "175359872932",
+    appId: "1:175359872932:web:0f97b172eba4d411a0bb31",
+    measurementId: "G-0589PK5QFQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const messagesRef = collection(db, "messages");
+const usersRef = collection(db, "users");
+
+/* ===== ЭЛЕМЕНТЫ ===== */
+
+const registrationScreen = document.getElementById("registration-screen");
+const regNameInput = document.getElementById("reg-name-input");
+const regUsernameInput = document.getElementById("reg-username-input");
+const regFileInput = document.getElementById("reg-file-input");
+const regAvatarImg = document.getElementById("reg-avatar-img");
+const regAvatarPlaceholder = document.getElementById("reg-avatar-placeholder");
+const regButton = document.getElementById("reg-button");
+
+const headerName = document.getElementById("header-name");
+const fileInput = document.getElementById("file-input");
+const avatarImg = document.getElementById("avatar-img");
+const avatarPlaceholder = document.getElementById("avatar-placeholder");
+const backBtn = document.getElementById("back-btn");
+const deleteChatBtn = document.getElementById("delete-chat-btn");
+const deleteModal = document.getElementById("delete-modal");
+
+const chatWindow = document.getElementById("chat-window");
+const chatsList = document.getElementById("chats-list");
+const chatsListItems = document.getElementById("chats-list-items");
+
+const msgInput = document.getElementById("msg-input");
+const sendBtn = document.getElementById("send-btn");
+const imageBtn = document.getElementById("image-btn");
+const imageInput = document.getElementById("image-input");
+
+const inputArea = document.getElementById("input-area");
+const profileHeader = document.getElementById("profile-header");
+
+const findUserScreen = document.getElementById("find-user-screen");
+const findSearchInput = document.getElementById("find-search-input");
+const findUserContent = document.getElementById("find-user-content");
+
+/* ===== ПЕРЕМЕННЫЕ СОСТОЯНИЯ ===== */
+
+let deviceId = localStorage.getItem("device_id");
+const isFirstLaunch = !deviceId;
+
+if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem("device_id", deviceId);
 }
 
-// ===== ОТКРЫТЬ ОКНО ПОИСКА =====
-window.openFindUserScreen = function() {
-    document.getElementById('find-user-screen').classList.add('active');
+let myName     = localStorage.getItem("chat_name")     || "";
+let myUsername = localStorage.getItem("chat_username") || "";
+let myAvatar   = localStorage.getItem("chat_avatar")   || "";
+
+let currentChatId        = null;
+let currentContactUser   = null;
+let isInChatsList        = true;
+let allUsers             = [];
+let unsubscribeChat      = null;
+let unsubscribeAllChats  = null;
+
+/* ===== ВАЛИДАЦИЯ РЕГИСТРАЦИИ ===== */
+
+function validateRegistration() {
+    const name = regNameInput.value.trim();
+    const username = regUsernameInput.value.trim();
+    const hasAvatar = regAvatarImg.style.display !== "none";
+    
+    const isValid = name.length > 0 && username.length > 0;
+    regButton.disabled = !isValid;
+}
+
+regNameInput.addEventListener("input", validateRegistration);
+regUsernameInput.addEventListener("input", validateRegistration);
+regFileInput.addEventListener("change", validateRegistration);
+
+/* ===== ОБНОВЛЕНИЕ ШАПКИ ===== */
+
+function updateHeader(mode) {
+    if (mode === 'contact' && currentContactUser) {
+        if (currentContactUser.avatar) {
+            avatarImg.src = currentContactUser.avatar;
+            avatarImg.style.display = "block";
+            avatarPlaceholder.style.display = "none";
+        } else {
+            avatarImg.style.display = "none";
+            avatarPlaceholder.style.display = "flex";
+            avatarPlaceholder.textContent = "👤";
+        }
+        headerName.textContent = currentContactUser.name || "Unknown";
+        deleteChatBtn.classList.add("visible");
+    } else {
+        if (myAvatar) {
+            avatarImg.src = myAvatar;
+            avatarImg.style.display = "block";
+            avatarPlaceholder.style.display = "none";
+        } else {
+            avatarImg.style.display = "none";
+            avatarPlaceholder.style.display = "flex";
+            avatarPlaceholder.textContent = "+";
+        }
+        headerName.textContent = myName || "Мой профиль";
+        deleteChatBtn.classList.remove("visible");
+    }
+}
+
+/* ===== КЛИК ПО АВАТАРУ В ШАПКЕ ===== */
+
+window.handleAvatarClick = function() {
+    if (isInChatsList) {
+        fileInput.click();
+    }
 };
 
-// ===== ЗАКРЫТЬ ОКНО ПОИСКА =====
+/* ===== КНОПКА НАЗАД ===== */
+
+backBtn.addEventListener("click", () => {
+    showChatsList();
+});
+
+/* ===== КНОПКА УДАЛЕНИЯ ЧАТА ===== */
+
+deleteChatBtn.addEventListener("click", () => {
+    deleteModal.classList.add("active");
+});
+
+window.confirmDeleteChat = async () => {
+    if (!currentChatId) return;
+    
+    deleteModal.classList.remove("active");
+    
+    try {
+        // Получить все сообщения в этом чате
+        const q = query(messagesRef, where("chatId", "==", currentChatId));
+        const unsub = onSnapshot(q, async (snapshot) => {
+            // Удалить все сообщения
+            for (const docSnap of snapshot.docs) {
+                await deleteDoc(docSnap.ref);
+            }
+            unsub();
+        });
+        
+        // Вернуться в список чатов
+        setTimeout(() => {
+            showChatsList();
+        }, 500);
+    } catch (e) {
+        console.error("Ошибка удаления чата:", e);
+    }
+};
+
+/* ===== ИНИЦИАЛИЗАЦИЯ ===== */
+
+if (isFirstLaunch) {
+    registrationScreen.classList.remove("hidden");
+    updateHeader('me');
+} else {
+    registrationScreen.classList.add("hidden");
+    updateHeader('me');
+    init();
+}
+
+async function init() {
+    await loadAllUsers();
+    subscribeAllUsers();
+    showChatsList();
+}
+
+/* ===== ПОКАЗ СПИСКА ЧАТОВ ===== */
+
+function showChatsList() {
+    isInChatsList = true;
+    currentChatId = null;
+    currentContactUser = null;
+
+    if (unsubscribeChat) {
+        unsubscribeChat();
+        unsubscribeChat = null;
+    }
+
+    chatWindow.classList.add("hidden");
+    inputArea.classList.add("hidden");
+    chatsList.classList.add("active");
+
+    updateHeader('me');
+    loadAllChats();
+}
+
+/* ===== ПОКАЗ ЧАТА ===== */
+
+function showChat(chatId, contactUser) {
+    isInChatsList = false;
+    currentChatId = chatId;
+    currentContactUser = contactUser;
+
+    chatsList.classList.remove("active");
+    chatWindow.classList.remove("hidden");
+    inputArea.classList.remove("hidden");
+
+    updateHeader('contact');
+
+    chatWindow.innerHTML = "";
+    loadChat(chatId);
+}
+
+/* ===== РЕГИСТРАЦИЯ ===== */
+
+regFileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+        regAvatarImg.src = reader.result;
+        regAvatarImg.style.display = "block";
+        regAvatarPlaceholder.style.display = "none";
+        validateRegistration();
+    };
+    reader.readAsDataURL(file);
+});
+
+regButton.addEventListener("click", async () => {
+    const name     = regNameInput.value.trim();
+    const username = regUsernameInput.value.trim();
+    
+    if (!name || !username) {
+        return;
+    }
+    
+    const avatar   = regAvatarImg.style.display === "block" ? regAvatarImg.src : "";
+
+    myName     = name;
+    myUsername = username.toLowerCase().replace("@", "");
+    myAvatar   = avatar;
+
+    localStorage.setItem("chat_name",     myName);
+    localStorage.setItem("chat_username", myUsername);
+    localStorage.setItem("chat_avatar",   myAvatar);
+
+    try {
+        await setDoc(doc(db, "users", deviceId), {
+            deviceId: deviceId,
+            name:     myName,
+            username: myUsername,
+            avatar:   myAvatar,
+            updatedAt: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Ошибка сохранения профиля:", e);
+    }
+
+    registrationScreen.classList.add("hidden");
+    updateHeader('me');
+
+    await loadAllUsers();
+    subscribeAllUsers();
+    showChatsList();
+});
+
+/* ===== ЗАГРУЗКА ВСЕХ ПОЛЬЗОВАТЕЛЕЙ (REALTIME) ===== */
+
+function subscribeAllUsers() {
+    onSnapshot(usersRef, (snapshot) => {
+        allUsers = [];
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            if (docSnap.id !== deviceId) {
+                allUsers.push({
+                    id:       docSnap.id,
+                    deviceId: docSnap.id,
+                    name:     data.name     || "Unknown",
+                    username: (data.username || "").toLowerCase(),
+                    avatar:   data.avatar   || ""
+                });
+            }
+        });
+
+        if (!isInChatsList && currentContactUser) {
+            const fresh = allUsers.find(u => u.deviceId === currentContactUser.deviceId);
+            if (fresh) {
+                currentContactUser = fresh;
+                updateHeader('contact');
+            }
+        }
+    });
+}
+
+async function loadAllUsers() {
+    return new Promise(resolve => {
+        const unsub = onSnapshot(usersRef, (snapshot) => {
+            allUsers = [];
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                if (docSnap.id !== deviceId) {
+                    allUsers.push({
+                        id:       docSnap.id,
+                        deviceId: docSnap.id,
+                        name:     data.name     || "Unknown",
+                        username: (data.username || "").toLowerCase(),
+                        avatar:   data.avatar   || ""
+                    });
+                }
+            });
+            unsub();
+            resolve();
+        });
+    });
+}
+
+/* ===== ПОИСК ПОЛЬЗОВАТЕЛЯ ===== */
+
+window.openFindUserScreen = async function() {
+    await loadAllUsers();
+    findUserScreen.classList.add("active");
+    findSearchInput.value = "";
+    displayUserSearchResults("");
+    setTimeout(() => findSearchInput.focus(), 100);
+};
+
 window.closeFindUserScreen = function() {
-    document.getElementById('find-user-screen').classList.remove('active');
-    document.getElementById('find-search-input').value = '';
-    document.getElementById('find-user-content').innerHTML = '';
+    findUserScreen.classList.remove("active");
 };
 
-// ===== ПОИСК ПОЛЬЗОВАТЕЛЕЙ =====
-document.getElementById('find-search-input').addEventListener('input', function(e) {
-    const query = e.target.value.trim().toLowerCase();
-    const content = document.getElementById('find-user-content');
-    
-    if (!query) {
-        content.innerHTML = '';
+findSearchInput.addEventListener("input", (e) => {
+    displayUserSearchResults(e.target.value);
+});
+
+function displayUserSearchResults(searchQuery) {
+    findUserContent.innerHTML = "";
+
+    if (searchQuery.length === 0) {
+        findUserContent.innerHTML = `
+            <div class="find-user-empty">
+                <div class="find-user-empty-icon">🔍</div>
+                <div class="find-user-empty-text">Введи юзернейм</div>
+            </div>`;
         return;
     }
-    
-    // Симуляция поиска (в реальном приложении это был бы запрос на сервер)
-    const mockUsers = [
-        { userId: '1', name: 'Иван', username: 'ivan', avatar: '👨' },
-        { userId: '2', name: 'Мария', username: 'maria', avatar: '👩' },
-        { userId: '3', name: 'Петр', username: 'peter', avatar: '👨‍💼' }
-    ];
-    
-    const results = mockUsers.filter(u => 
-        u.username.toLowerCase().includes(query) || 
-        u.name.toLowerCase().includes(query)
-    );
-    
-    if (results.length === 0) {
-        content.innerHTML = '<div class="find-user-empty"><div class="find-user-empty-icon">🔍</div><div class="find-user-empty-text">Пользователей не найдено</div></div>';
+
+    const q = searchQuery.toLowerCase().replace("@", "");
+    const filtered = allUsers.filter(u => u.username.includes(q) || u.name.toLowerCase().includes(q));
+
+    if (filtered.length === 0) {
+        findUserContent.innerHTML = `
+            <div class="find-user-empty">
+                <div class="find-user-empty-icon">😕</div>
+                <div class="find-user-empty-text">Юзернейм не найден</div>
+            </div>`;
         return;
     }
-    
-    content.innerHTML = results.map(user => `
-        <div class="user-search-result" onclick="startChat('${user.userId}', '${user.name}', '${user.avatar}')">
-            <div class="user-avatar-small">${user.avatar}</div>
+
+    filtered.forEach(user => {
+        const el = document.createElement("div");
+        el.className = "user-search-result";
+        el.innerHTML = `
+            <div class="user-avatar-small">
+                ${user.avatar
+                    ? `<img src="${user.avatar}">`
+                    : '👤'}
+            </div>
             <div class="user-info-small">
                 <div class="user-name-small">${user.name}</div>
                 <div class="user-username">@${user.username}</div>
-            </div>
-        </div>
-    `).join('');
-};
-
-// ===== НАЧАТЬ ЧАТ =====
-function startChat(userId, name, avatar) {
-    if (!chats[userId]) {
-        chats[userId] = {
-            userId: userId,
-            name: name,
-            avatar: avatar,
-            lastMessage: '',
-            timestamp: Date.now()
-        };
-        messages[userId] = [];
-        localStorage.setItem('chats', JSON.stringify(chats));
-        localStorage.setItem('messages', JSON.stringify(messages));
-    }
-    
-    currentChatId = userId;
-    window.closeFindUserScreen();
-    document.getElementById('chats-list').classList.remove('active');
-    document.getElementById('chat-window').classList.remove('hidden');
-    document.getElementById('input-area').classList.remove('hidden');
-    document.getElementById('header-name').textContent = name;
-    document.getElementById('delete-chat-btn').classList.add('visible');
-    
-    loadChat(userId);
-}
-
-// ===== ЗАГРУЗИТЬ ЧАТ =====
-function loadChat(userId) {
-    const chatWindow = document.getElementById('chat-window');
-    chatWindow.innerHTML = '';
-    
-    const chatMessages = messages[userId] || [];
-    chatMessages.forEach(msg => {
-        const msgEl = document.createElement('div');
-        msgEl.className = `msg ${msg.type}`;
-        msgEl.innerHTML = `
-            <div class="msg-sender">
-                <img class="msg-avatar" src="${msg.avatar}" alt="">
-                <span class="name">${msg.senderName}</span>
-            </div>
-            <div>${msg.text}</div>
-        `;
-        chatWindow.appendChild(msgEl);
+            </div>`;
+        el.onclick = () => startChatWithUser(user);
+        findUserContent.appendChild(el);
     });
-    
-    chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-// ===== ОТПРАВИТЬ СООБЩЕНИЕ =====
-document.getElementById('send-btn').addEventListener('click', function() {
-    const input = document.getElementById('msg-input');
-    const text = input.value.trim();
-    
-    if (!text || !currentChatId) return;
-    
-    const msg = {
-        type: 'outgoing',
-        text: text,
-        senderName: userData.name,
-        avatar: userData.avatar,
-        timestamp: Date.now()
-    };
-    
-    if (!messages[currentChatId]) {
-        messages[currentChatId] = [];
-    }
-    
-    messages[currentChatId].push(msg);
-    chats[currentChatId].lastMessage = text;
-    chats[currentChatId].timestamp = Date.now();
-    
-    localStorage.setItem('messages', JSON.stringify(messages));
-    localStorage.setItem('chats', JSON.stringify(chats));
-    
-    input.value = '';
-    loadChat(currentChatId);
-    updateChatsList();
-});
+/* ===== НАЧАТЬ ЧАТ С ПОЛЬЗОВАТЕЛЕМ ===== */
 
-// ===== ОБНОВИТЬ СПИСОК ЧАТОВ =====
-function updateChatsList() {
-    const list = document.getElementById('chats-list-items');
-    
-    if (Object.keys(chats).length === 0) {
-        list.innerHTML = '<div class="chats-empty"><div class="chats-empty-icon">💬</div><div class="chats-empty-text">Нет чатов</div></div>';
+function startChatWithUser(user) {
+    const chatId = [deviceId, user.deviceId].sort().join("__");
+
+    window.closeFindUserScreen();
+    addChatToList(chatId, user);
+    showChat(chatId, user);
+}
+
+/* ===== ЗАГРУЗКА ВСЕХ ЧАТОВ ===== */
+
+function loadAllChats() {
+    chatsListItems.innerHTML = "";
+
+    if (unsubscribeAllChats) {
+        unsubscribeAllChats();
+        unsubscribeAllChats = null;
+    }
+
+    const q = query(messagesRef, orderBy("createdAt", "desc"));
+
+    unsubscribeAllChats = onSnapshot(q, (snapshot) => {
+        const chatMap = {};
+
+        snapshot.forEach(docSnap => {
+            const msg = docSnap.data();
+            const cid = msg.chatId;
+            if (!cid) return;
+
+            if (!cid.includes(deviceId)) return;
+
+            if (!chatMap[cid]) {
+                const parts = cid.split("__");
+                const contactDeviceId = parts[0] === deviceId ? parts[1] : parts[0];
+
+                chatMap[cid] = {
+                    chatId:          cid,
+                    contactDeviceId: contactDeviceId,
+                    lastMessage:     msg.text || "📷 Фото",
+                    ts:              msg.createdAt
+                };
+            }
+        });
+
+        renderChatsList(chatMap);
+    });
+}
+
+function renderChatsList(chatMap) {
+    chatsListItems.innerHTML = "";
+
+    if (Object.keys(chatMap).length === 0) {
+        chatsListItems.innerHTML = `
+            <div class="chats-empty">
+                <div class="chats-empty-icon">💬</div>
+                <div class="chats-empty-text">Нет чатов<br>Нажми + чтобы написать</div>
+            </div>`;
         return;
     }
-    
-    list.innerHTML = Object.values(chats).map(chat => `
-        <div class="chat-item" onclick="openChat('${chat.userId}', '${chat.name}', '${chat.avatar}')">
-            <div class="chat-item-avatar">${chat.avatar}</div>
-            <div class="chat-item-info">
-                <div class="chat-item-name">${chat.name}</div>
-                <div class="chat-item-preview">${chat.lastMessage || 'Нет сообщений'}</div>
+
+    for (const chatId in chatMap) {
+        const chat = chatMap[chatId];
+        const contactUser = allUsers.find(u => u.deviceId === chat.contactDeviceId);
+
+        const name   = contactUser ? contactUser.name   : chat.contactDeviceId.slice(0, 8) + "…";
+        const avatar = contactUser ? contactUser.avatar : "";
+
+        const contactObj = contactUser || {
+            name:     name,
+            avatar:   "",
+            deviceId: chat.contactDeviceId
+        };
+
+        const el = document.createElement("div");
+        el.className = "chat-item";
+        el.innerHTML = `
+            <div class="chat-item-avatar">
+                ${avatar
+                    ? `<img src="${avatar}">`
+                    : '👤'}
             </div>
+            <div class="chat-item-info">
+                <div class="chat-item-name">${name}</div>
+                <div class="chat-item-preview">${chat.lastMessage}</div>
+            </div>`;
+        el.onclick = () => showChat(chatId, contactObj);
+        chatsListItems.appendChild(el);
+    }
+}
+
+function addChatToList(chatId, user) {
+    if (document.querySelector(`[data-chat-id="${chatId}"]`)) return;
+
+    const empty = chatsListItems.querySelector(".chats-empty");
+    if (empty) empty.remove();
+
+    const el = document.createElement("div");
+    el.className = "chat-item";
+    el.dataset.chatId = chatId;
+    el.innerHTML = `
+        <div class="chat-item-avatar">
+            ${user.avatar
+                ? `<img src="${user.avatar}">`
+                : '👤'}
         </div>
-    `).join('');
+        <div class="chat-item-info">
+            <div class="chat-item-name">${user.name}</div>
+            <div class="chat-item-preview">Начать переписку…</div>
+        </div>`;
+    el.onclick = () => showChat(chatId, user);
+    chatsListItems.prepend(el);
 }
 
-// ===== ОТКРЫТЬ ЧАТ ИЗ СПИСКА =====
-function openChat(userId, name, avatar) {
-    startChat(userId, name, avatar);
+/* ===== ЗАГРУЗКА ЧАТА (REALTIME) ===== */
+
+function buildMsgEl(msg, animate = false) {
+    const isOutgoing = msg.deviceId === deviceId;
+    const msgEl = document.createElement("div");
+    msgEl.className = `msg ${isOutgoing ? 'outgoing' : 'incoming'}${animate ? ' msg-fly' : ''}`;
+
+    const avatarSrc = msg.avatar || "";
+    let content = `
+        <div class="msg-sender">
+            ${avatarSrc
+                ? `<img class="msg-avatar" src="${avatarSrc}">`
+                : `<span class="msg-avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;">👤</span>`}
+            <span class="name">${msg.name || "Unknown"}</span>
+        </div>`;
+
+    if (msg.text)  content += `<div>${msg.text}</div>`;
+    if (msg.image) content += `
+        <div class="photo-preview" onclick="window.togglePhoto(this)">
+            <div class="photo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 5L6.5 7H5C3.9 7 3 7.9 3 9V17C3 18.1 3.9 19 5 19H19C20.1 19 21 18.1 21 17V9C21 7.9 20.1 7 19 7H17.5L16 5H8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+            </div>
+            <span>Фото</span>
+        </div>
+        <img class="photo-full" src="${msg.image}" alt="Фото">`;
+
+    msgEl.innerHTML = content;
+    return msgEl;
 }
 
-// ===== КНОПКА НАЗАД =====
-document.getElementById('back-btn').addEventListener('click', function() {
-    if (currentChatId) {
-        currentChatId = null;
-        document.getElementById('chat-window').classList.add('hidden');
-        document.getElementById('input-area').classList.add('hidden');
-        document.getElementById('chats-list').classList.add('active');
-        document.getElementById('delete-chat-btn').classList.remove('visible');
-        document.getElementById('header-name').textContent = userData.name;
-        updateChatsList();
+function loadChat(chatId) {
+    if (unsubscribeChat) {
+        unsubscribeChat();
+        unsubscribeChat = null;
     }
+
+    chatWindow.innerHTML = "";
+
+    const renderedIds = new Set();
+    let initialLoadDone = false;
+
+    const q = query(
+        messagesRef,
+        where("chatId", "==", chatId)
+    );
+
+    unsubscribeChat = onSnapshot(q, (snapshot) => {
+        if (!initialLoadDone) {
+            const msgs = [];
+            snapshot.forEach(docSnap => {
+                msgs.push({ id: docSnap.id, data: docSnap.data() });
+                renderedIds.add(docSnap.id);
+            });
+
+            msgs.sort((a, b) => {
+                const ta = a.data.createdAt?.toMillis?.() ?? Date.now();
+                const tb = b.data.createdAt?.toMillis?.() ?? Date.now();
+                return ta - tb;
+            });
+
+            msgs.forEach(({ id, data }) => {
+                const el = buildMsgEl(data, false);
+                el.dataset.msgId = id;
+                chatWindow.appendChild(el);
+            });
+
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            initialLoadDone = true;
+
+        } else {
+            let needsScroll = false;
+
+            snapshot.docChanges().forEach(change => {
+                const msg   = change.doc.data();
+                const docId = change.doc.id;
+
+                if ((change.type === "added" || change.type === "modified") && !renderedIds.has(docId)) {
+                    renderedIds.add(docId);
+                    const el = buildMsgEl(msg, true);
+                    el.dataset.msgId = docId;
+                    chatWindow.appendChild(el);
+                    needsScroll = true;
+                } else if (change.type === "removed") {
+                    renderedIds.delete(docId);
+                    const existing = chatWindow.querySelector(`[data-msg-id="${docId}"]`);
+                    if (existing) existing.remove();
+                }
+            });
+
+            if (needsScroll) {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+        }
+    }, (error) => {
+        console.error("Ошибка onSnapshot:", error);
+    });
+}
+
+/* ===== ИЗМЕНЕНИЕ АВАТАРА ===== */
+
+fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+        myAvatar = reader.result;
+        localStorage.setItem("chat_avatar", myAvatar);
+        updateHeader('me');
+        try {
+            await setDoc(doc(db, "users", deviceId), {
+                deviceId: deviceId,
+                name:     myName,
+                username: myUsername,
+                avatar:   myAvatar,
+                updatedAt: serverTimestamp()
+            });
+        } catch(e) {
+            console.error("Ошибка обновления аватара:", e);
+        }
+    };
+    reader.readAsDataURL(file);
 });
 
-// ===== УДАЛЕНИЕ ЧАТА =====
-document.getElementById('delete-chat-btn').addEventListener('click', function() {
-    if (currentChatId && confirm('Удалить этот чат?')) {
-        delete chats[currentChatId];
-        delete messages[currentChatId];
-        localStorage.setItem('chats', JSON.stringify(chats));
-        localStorage.setItem('messages', JSON.stringify(messages));
-        document.getElementById('back-btn').click();
+/* ===== ОТПРАВКА ТЕКСТА ===== */
+
+async function sendMessage() {
+    const text = msgInput.value.trim();
+    if (!text || !currentChatId) return;
+    msgInput.value = "";
+
+    try {
+        await addDoc(messagesRef, {
+            deviceId:  deviceId,
+            name:      myName,
+            avatar:    myAvatar,
+            text:      text,
+            chatId:    currentChatId,
+            createdAt: serverTimestamp()
+        });
+    } catch(e) {
+        console.error("Ошибка отправки:", e);
     }
+}
+
+sendBtn.addEventListener("click", sendMessage);
+msgInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
 });
 
-// ===== ИНИЦИАЛИЗАЦИЯ =====
-window.addEventListener('load', function() {
-    const savedUserData = localStorage.getItem('userData');
-    const savedChats = localStorage.getItem('chats');
-    const savedMessages = localStorage.getItem('messages');
-    
-    if (savedUserData) {
-        userData = JSON.parse(savedUserData);
-        chats = savedChats ? JSON.parse(savedChats) : {};
-        messages = savedMessages ? JSON.parse(savedMessages) : {};
-        completeRegistration();
-    }
+/* ===== ОТПРАВКА ФОТО ===== */
+
+imageBtn.addEventListener("click", () => imageInput.click());
+
+imageInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file || !currentChatId) return;
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+        try {
+            await addDoc(messagesRef, {
+                deviceId:  deviceId,
+                name:      myName,
+                avatar:    myAvatar,
+                image:     reader.result,
+                chatId:    currentChatId,
+                createdAt: serverTimestamp()
+            });
+        } catch(e) {
+            console.error("Ошибка отправки фото:", e);
+        }
+    };
+    reader.readAsDataURL(file);
 });
+
+/* ===== РАСКРЫТИЕ ФОТО ===== */
+
+window.togglePhoto = function(preview) {
+    const img = preview.nextElementSibling;
+    img.classList.toggle('open');
+};
+
 </script>
 
 </body>
