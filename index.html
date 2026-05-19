@@ -1259,15 +1259,42 @@ function showChat(chatId, contactUser) {
 /* ===== РЕГИСТРАЦИЯ ===== */
 
 regFileInput.addEventListener("change", (e) => {
+
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-        regAvatarImg.src = reader.result;
-        regAvatarImg.style.display = "block";
-        regAvatarPlaceholder.style.display = "none";
-        validateRegistration();
+
+    reader.onload = (event) => {
+
+        const img = new Image();
+
+        img.onload = () => {
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const size = 256;
+
+            canvas.width = size;
+            canvas.height = size;
+
+            ctx.drawImage(img, 0, 0, size, size);
+
+            const compressedAvatar =
+                canvas.toDataURL("image/jpeg", 0.7);
+
+            regAvatarImg.src = compressedAvatar;
+
+            regAvatarImg.style.display = "block";
+            regAvatarPlaceholder.style.display = "none";
+
+            validateRegistration();
+        };
+
+        img.src = event.target.result;
     };
+
     reader.readAsDataURL(file);
 });
 
@@ -1637,25 +1664,54 @@ function loadChat(chatId) {
 /* ===== ИЗМЕНЕНИЕ АВАТАРА ===== */
 
 fileInput.addEventListener("change", (e) => {
+
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = async () => {
-        myAvatar = reader.result;
-        localStorage.setItem("chat_avatar", myAvatar);
-        updateHeader('me');
-        try {
-            await setDoc(doc(db, "users", deviceId), {
-                deviceId: deviceId,
-                name:     myName,
-                username: myUsername,
-                avatar:   myAvatar,
-                updatedAt: serverTimestamp()
-            });
-        } catch(e) {
-            console.error("Ошибка обновления аватара:", e);
-        }
+
+    reader.onload = (event) => {
+
+        const img = new Image();
+
+        img.onload = async () => {
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const size = 256;
+
+            canvas.width = size;
+            canvas.height = size;
+
+            ctx.drawImage(img, 0, 0, size, size);
+
+            myAvatar = canvas.toDataURL("image/jpeg", 0.7);
+
+            localStorage.setItem("chat_avatar", myAvatar);
+
+            updateHeader('me');
+
+            try {
+
+                await setDoc(doc(db, "users", deviceId), {
+                    deviceId: deviceId,
+                    name: myName,
+                    username: myUsername,
+                    avatar: myAvatar,
+                    updatedAt: serverTimestamp()
+                });
+
+            } catch (e) {
+
+                console.error("Ошибка обновления аватара:", e);
+
+            }
+        };
+
+        img.src = event.target.result;
     };
+
     reader.readAsDataURL(file);
 });
 
