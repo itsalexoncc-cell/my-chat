@@ -654,13 +654,13 @@ body{
 
 .msg.outgoing{
     align-self:flex-end;
+    padding-right:42px;
 }
 
 /* ===== АВАТАР ===== */
 
 .msg-avatar{
     position:absolute;
-    left:0;
     top:18px;
 
     width:32px;
@@ -680,6 +680,20 @@ body{
     font-size:14px;
 
     overflow:hidden;
+
+    z-index:2;
+}
+
+/* ===== ВХОДЯЩИЕ ===== */
+
+.msg.incoming .msg-avatar{
+    left:0;
+}
+
+/* ===== ИСХОДЯЩИЕ ===== */
+
+.msg.outgoing .msg-avatar{
+    right:0;
 }
 
 /* ===== БЛОК ИМЕНИ ===== */
