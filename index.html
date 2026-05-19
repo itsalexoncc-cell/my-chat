@@ -214,7 +214,7 @@ body{
     position:relative;
 }
 
-/* Кнопка назад */
+/* К��опка назад */
 #back-btn{
     color:white;
     font-size:34px;
@@ -619,69 +619,7 @@ body{
     color:#999;
 }
 
-/* ===== СООБЩЕНИЯ (НОВЫЙ ДИЗАЙН) ===== */
-
-.msg-wrapper{
-    display:flex;
-    align-items:flex-end;
-    gap:8px;
-    margin-bottom:8px;
-    animation:fade .18s ease;
-}
-
-.msg-wrapper.outgoing{
-    flex-direction:row-reverse;
-}
-
-.msg-avatar-wrapper{
-    flex-shrink:0;
-    width:36px;
-    height:36px;
-    border-radius:50%;
-    overflow:hidden;
-    background:#d1d5db;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-.msg-avatar-wrapper img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-
-.msg-content-wrapper{
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-}
-
-.msg-header{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    padding:0 4px;
-}
-
-.msg-avatar-small{
-    width:18px;
-    height:18px;
-    border-radius:50%;
-    object-fit:cover;
-    background:#d1d5db;
-}
-
-.msg-name{
-    font-size:11px;
-    font-weight:600;
-    color:#666;
-    opacity:0.72;
-}
-
-.msg-wrapper.outgoing .msg-name{
-    color:#007aff;
-}
+/* ===== СООБЩЕНИЯ ===== */
 
 .msg{
     max-width:78%;
@@ -693,6 +631,7 @@ body{
     display:flex;
     flex-direction:column;
     gap:4px;
+    animation:fade .18s ease;
 }
 
 @keyframes fade{
@@ -718,6 +657,31 @@ body{
     background:linear-gradient(180deg, #1690ff 0%, #007aff 100%);
     color:white;
     box-shadow:0 4px 12px rgba(0,122,255,0.22);
+}
+
+.msg-sender{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:2px;
+}
+
+.msg-avatar{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    object-fit:cover;
+    background:#d1d5db;
+}
+
+.msg .name{
+    font-size:11px;
+    font-weight:600;
+    opacity:0.72;
+}
+
+.msg.outgoing .name{
+    color:#dceeff;
 }
 
 .chat-image{
@@ -1090,6 +1054,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const messagesRef = collection(db, "messages");
 const usersRef = collection(db, "users");
 
 /* ===== ЭЛЕМЕНТЫ ===== */
@@ -1146,65 +1111,6 @@ let isInChatsList        = true;
 let allUsers             = [];
 let unsubscribeChat      = null;
 let unsubscribeAllChats  = null;
-
-/* ===== ФУНКЦИЯ СЖАТИЯ ФОТО ДО 1МБ ===== */
-
-async function compressImage(file, maxSizeMB = 1) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        
-        reader.onload = (event) => {
-            const img = new Image();
-            
-            img.onload = () => {
-                let canvas = document.createElement("canvas");
-                let ctx = canvas.getContext("2d");
-                
-                const minSide = Math.min(img.width, img.height);
-                const sx = (img.width - minSide) / 2;
-                const sy = (img.height - minSide) / 2;
-                
-                // Начальное разрешение
-                let width = minSide;
-                let height = minSide;
-                let quality = 0.85;
-                
-                // Итеративно сжимаем
-                let compressed;
-                let attempts = 0;
-                const maxAttempts = 10;
-                
-                do {
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, width, height);
-                    
-                    compressed = canvas.toDataURL("image/jpeg", quality);
-                    
-                    const sizeInMB = (compressed.length * 0.75) / 1024 / 1024;
-                    
-                    if (sizeInMB <= maxSizeMB || attempts >= maxAttempts) {
-                        resolve(compressed);
-                        return;
-                    }
-                    
-                    // Уменьшаем размер
-                    width = Math.floor(width * 0.9);
-                    height = Math.floor(height * 0.9);
-                    quality = Math.max(0.5, quality - 0.05);
-                    attempts++;
-                    
-                } while (attempts < maxAttempts);
-                
-                resolve(compressed);
-            };
-            
-            img.src = event.target.result;
-        };
-        
-        reader.readAsDataURL(file);
-    });
-}
 
 /* ===== ВАЛИДАЦИЯ РЕГИСТРАЦИИ ===== */
 
@@ -1277,21 +1183,14 @@ window.confirmDeleteChat = async () => {
     deleteModal.classList.remove("active");
     
     try {
-        const parts = currentChatId.split("__");
-        const contactDeviceId = parts[0] === deviceId ? parts[1] : parts[0];
-        
-        // Удалить сообщения из users/deviceId/chats/chatId/messages
-        const messagesRef1 = collection(db, "users", deviceId, "chats", currentChatId, "messages");
-        const messagesRef2 = collection(db, "users", contactDeviceId, "chats", currentChatId, "messages");
-        
-        const q1 = query(messagesRef1);
-        const q2 = query(messagesRef2);
-        
-        // Получить все сообщения текущего пользователя
-        onSnapshot(q1, async (snapshot) => {
+        // Получить все сообщения в этом чате
+        const q = query(messagesRef, where("chatId", "==", currentChatId));
+        const unsub = onSnapshot(q, async (snapshot) => {
+            // Удалить все сообщения
             for (const docSnap of snapshot.docs) {
                 await deleteDoc(docSnap.ref);
             }
+            unsub();
         });
         
         // Вернуться в список чатов
@@ -1582,44 +1481,32 @@ function loadAllChats() {
         unsubscribeAllChats = null;
     }
 
-    // Подписываемся на все чаты текущего пользователя
-    const chatsRef = collection(db, "users", deviceId, "chats");
-    
-    unsubscribeAllChats = onSnapshot(chatsRef, (snapshot) => {
+    const q = query(messagesRef, orderBy("createdAt", "desc"));
+
+    unsubscribeAllChats = onSnapshot(q, (snapshot) => {
         const chatMap = {};
 
-        snapshot.forEach(chatSnap => {
-            const chatId = chatSnap.id;
-            const messagesRef = collection(db, "users", deviceId, "chats", chatId, "messages");
-            
-            // Получаем последнее сообщение для каждого чата
-            const q = query(messagesRef, orderBy("createdAt", "desc"));
-            
-            onSnapshot(q, (msgSnapshot) => {
-                if (!msgSnapshot.empty) {
-                    const lastMsg = msgSnapshot.docs[0].data();
-                    
-                    const parts = chatId.split("__");
-                    const contactDeviceId = parts[0] === deviceId ? parts[1] : parts[0];
-                    
-                    chatMap[chatId] = {
-                        chatId:          chatId,
-                        contactDeviceId: contactDeviceId,
-                        lastMessage:     lastMsg.text || "📷 Фото",
-                        ts:              lastMsg.createdAt
-                    };
-                }
-                renderChatsList(chatMap);
-            }, { once: true });
+        snapshot.forEach(docSnap => {
+            const msg = docSnap.data();
+            const cid = msg.chatId;
+            if (!cid) return;
+
+            if (!cid.includes(deviceId)) return;
+
+            if (!chatMap[cid]) {
+                const parts = cid.split("__");
+                const contactDeviceId = parts[0] === deviceId ? parts[1] : parts[0];
+
+                chatMap[cid] = {
+                    chatId:          cid,
+                    contactDeviceId: contactDeviceId,
+                    lastMessage:     msg.text || "📷 Фото",
+                    ts:              msg.createdAt
+                };
+            }
         });
 
-        if (snapshot.empty) {
-            chatsListItems.innerHTML = `
-                <div class="chats-empty">
-                    <div class="chats-empty-icon">💬</div>
-                    <div class="chats-empty-text">Нет чатов<br>Нажми + чтобы написать</div>
-                </div>`;
-        }
+        renderChatsList(chatMap);
     });
 }
 
@@ -1692,37 +1579,18 @@ function addChatToList(chatId, user) {
 
 function buildMsgEl(msg, animate = false) {
     const isOutgoing = msg.deviceId === deviceId;
-    
-    // Внешний обертка
-    const wrapper = document.createElement("div");
-    wrapper.className = `msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}${animate ? ' msg-fly' : ''}`;
-    
-    // Аватар
-    const avatarWrapper = document.createElement("div");
-    avatarWrapper.className = "msg-avatar-wrapper";
-    if (msg.avatar) {
-        const img = document.createElement("img");
-        img.src = msg.avatar;
-        avatarWrapper.appendChild(img);
-    } else {
-        avatarWrapper.textContent = "👤";
-    }
-    
-    // Контент (имя + сообщение)
-    const contentWrapper = document.createElement("div");
-    contentWrapper.className = "msg-content-wrapper";
-    
-    // Заголовок с именем
-    const header = document.createElement("div");
-    header.className = "msg-header";
-    header.innerHTML = `<span class="msg-name">${msg.name || "Unknown"}</span>`;
-    contentWrapper.appendChild(header);
-    
-    // Основное сообщение
     const msgEl = document.createElement("div");
-    msgEl.className = `msg ${isOutgoing ? 'outgoing' : 'incoming'}`;
-    
-    let content = "";
+    msgEl.className = `msg ${isOutgoing ? 'outgoing' : 'incoming'}${animate ? ' msg-fly' : ''}`;
+
+    const avatarSrc = msg.avatar || "";
+    let content = `
+        <div class="msg-sender">
+            ${avatarSrc
+                ? `<img class="msg-avatar" src="${avatarSrc}">`
+                : `<span class="msg-avatar" style="display:flex;align-items:center;justify-content:center;font-size:12px;">👤</span>`}
+            <span class="name">${msg.name || "Unknown"}</span>
+        </div>`;
+
     if (msg.text)  content += `<div>${msg.text}</div>`;
     if (msg.image) content += `
         <div class="photo-preview" onclick="window.togglePhoto(this)">
@@ -1737,13 +1605,7 @@ function buildMsgEl(msg, animate = false) {
         <img class="photo-full" src="${msg.image}" alt="Фото">`;
 
     msgEl.innerHTML = content;
-    contentWrapper.appendChild(msgEl);
-    
-    // Собираем все вместе
-    wrapper.appendChild(avatarWrapper);
-    wrapper.appendChild(contentWrapper);
-    
-    return wrapper;
+    return msgEl;
 }
 
 function loadChat(chatId) {
@@ -1757,9 +1619,10 @@ function loadChat(chatId) {
     const renderedIds = new Set();
     let initialLoadDone = false;
 
-    // Получаем с��общения из иерархии: users/deviceId/chats/chatId/messages
-    const messagesRef = collection(db, "users", deviceId, "chats", chatId, "messages");
-    const q = query(messagesRef, orderBy("createdAt", "asc"));
+    const q = query(
+        messagesRef,
+        where("chatId", "==", chatId)
+    );
 
     unsubscribeChat = onSnapshot(q, (snapshot) => {
         if (!initialLoadDone) {
@@ -1767,6 +1630,12 @@ function loadChat(chatId) {
             snapshot.forEach(docSnap => {
                 msgs.push({ id: docSnap.id, data: docSnap.data() });
                 renderedIds.add(docSnap.id);
+            });
+
+            msgs.sort((a, b) => {
+                const ta = a.data.createdAt?.toMillis?.() ?? Date.now();
+                const tb = b.data.createdAt?.toMillis?.() ?? Date.now();
+                return ta - tb;
             });
 
             msgs.forEach(({ id, data }) => {
@@ -1884,31 +1753,14 @@ async function sendMessage() {
     msgInput.value = "";
 
     try {
-        const parts = currentChatId.split("__");
-        const contactDeviceId = parts[0] === deviceId ? parts[1] : parts[0];
-        
-        // Сохраняем в users/deviceId/chats/chatId/messages
-        const messagesRef = collection(db, "users", deviceId, "chats", currentChatId, "messages");
-        
         await addDoc(messagesRef, {
             deviceId:  deviceId,
             name:      myName,
             avatar:    myAvatar,
             text:      text,
+            chatId:    currentChatId,
             createdAt: serverTimestamp()
         });
-        
-        // Также сохраняем в контакта: users/contactDeviceId/chats/chatId/messages
-        const contactMessagesRef = collection(db, "users", contactDeviceId, "chats", currentChatId, "messages");
-        
-        await addDoc(contactMessagesRef, {
-            deviceId:  deviceId,
-            name:      myName,
-            avatar:    myAvatar,
-            text:      text,
-            createdAt: serverTimestamp()
-        });
-        
     } catch(e) {
         console.error("Ошибка отправки:", e);
     }
@@ -1926,39 +1778,22 @@ imageBtn.addEventListener("click", () => imageInput.click());
 imageInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file || !currentChatId) return;
-    
-    try {
-        // Сжимаем фото до 1МБ
-        const compressedImage = await compressImage(file, 1);
-        
-        const parts = currentChatId.split("__");
-        const contactDeviceId = parts[0] === deviceId ? parts[1] : parts[0];
-        
-        // Сохраняем в текущего пользователя
-        const messagesRef = collection(db, "users", deviceId, "chats", currentChatId, "messages");
-        
-        await addDoc(messagesRef, {
-            deviceId:  deviceId,
-            name:      myName,
-            avatar:    myAvatar,
-            image:     compressedImage,
-            createdAt: serverTimestamp()
-        });
-        
-        // Сохраняем контакту
-        const contactMessagesRef = collection(db, "users", contactDeviceId, "chats", currentChatId, "messages");
-        
-        await addDoc(contactMessagesRef, {
-            deviceId:  deviceId,
-            name:      myName,
-            avatar:    myAvatar,
-            image:     compressedImage,
-            createdAt: serverTimestamp()
-        });
-        
-    } catch(e) {
-        console.error("Ошибка отправки фото:", e);
-    }
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+        try {
+            await addDoc(messagesRef, {
+                deviceId:  deviceId,
+                name:      myName,
+                avatar:    myAvatar,
+                image:     reader.result,
+                chatId:    currentChatId,
+                createdAt: serverTimestamp()
+            });
+        } catch(e) {
+            console.error("Ошибка отправки фото:", e);
+        }
+    };
+    reader.readAsDataURL(file);
 });
 
 /* ===== РАСКРЫТИЕ ФОТО ===== */
