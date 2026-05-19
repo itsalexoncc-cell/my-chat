@@ -1262,8 +1262,35 @@ regFileInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => {
-        regAvatarImg.src = reader.result;
+    reader.onload = () => {
+
+    const img = new Image();
+
+    img.onload = () => {
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const size = 256;
+
+        canvas.width = size;
+        canvas.height = size;
+
+        ctx.drawImage(img, 0, 0, size, size);
+
+        const compressed = canvas.toDataURL("image/jpeg", 0.6);
+
+        regAvatarImg.src = compressed;
+        regAvatarImg.style.display = "block";
+        regAvatarPlaceholder.style.display = "none";
+
+        validateRegistration();
+    };
+
+    img.src = reader.result;
+};
+
+reader.readAsDataURL(file);
         regAvatarImg.style.display = "block";
         regAvatarPlaceholder.style.display = "none";
         validateRegistration();
@@ -1640,8 +1667,45 @@ fileInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = async () => {
-        myAvatar = reader.result;
+    reader.onload = () => {
+
+    const img = new Image();
+
+    img.onload = async () => {
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const size = 256;
+
+        canvas.width = size;
+        canvas.height = size;
+
+        ctx.drawImage(img, 0, 0, size, size);
+
+        myAvatar = canvas.toDataURL("image/jpeg", 0.6);
+
+        localStorage.setItem("chat_avatar", myAvatar);
+
+        updateHeader('me');
+
+        try {
+            await setDoc(doc(db, "users", deviceId), {
+                deviceId: deviceId,
+                name: myName,
+                username: myUsername,
+                avatar: myAvatar,
+                updatedAt: serverTimestamp()
+            });
+        } catch(e) {
+            console.error("Ошибка обновления аватара:", e);
+        }
+    };
+
+    img.src = reader.result;
+};
+
+reader.readAsDataURL(file);
         localStorage.setItem("chat_avatar", myAvatar);
         updateHeader('me');
         try {
