@@ -1677,8 +1677,10 @@ function buildMsgEl(msg, animate = false) {
             <span class="name">${msg.name || "Unknown"}</span>
         </div>`;
 
-    if (msg.text)  content += `<div>${msg.text}</div>`;
+    if (msg.text)
+    content += `<div class="msg-bubble">${msg.text}</div>`;
     if (msg.image) content += `
+     <div class="msg-bubble">
         <div class="photo-preview" onclick="window.togglePhoto(this)">
             <div class="photo-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1688,7 +1690,9 @@ function buildMsgEl(msg, animate = false) {
             </div>
             <span>Фото</span>
         </div>
-        <img class="photo-full" src="${msg.image}" alt="Фото">`;
+        <img class="photo-full" src="${msg.image}" alt="Фото">
+
+</div>`;
 
     msgEl.innerHTML = content;
     return msgEl;
