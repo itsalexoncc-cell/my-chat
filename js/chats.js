@@ -22,7 +22,8 @@ export function loadAllChats() {
         snapshot.forEach(docSnap => {
             const msg = docSnap.data();
             const cid = msg.chatId;
-            if (!cid || !cid.includes(state.deviceId)) return;
+            const parts = cid.split("__");
+if (!parts.includes(state.deviceId)) return;
 
             if (!chatMap[cid]) {
                 const parts = cid.split("__");
