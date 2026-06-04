@@ -6,24 +6,22 @@ import { loadFeed } from './feed.js';
 import { loadChats } from './chats.js';
 import { loadProfilePhotos } from './profile.js';
 
-const regScreen      = document.getElementById("registration-screen");
-const regNameInput   = document.getElementById("reg-name-input");
+const regScreen        = document.getElementById("registration-screen");
+const regNameInput     = document.getElementById("reg-name-input");
 const regUsernameInput = document.getElementById("reg-username-input");
-const regButton      = document.getElementById("reg-button");
+const regButton        = document.getElementById("reg-button");
 
-function validate() {
-    const ok = regNameInput.value.trim().length > 0 && regUsernameInput.value.trim().length > 0;
-    regButton.disabled = !ok;
-    regButton.style.opacity = ok ? "1" : "0.4";
-}
-
-regNameInput.addEventListener("input", validate);
-regUsernameInput.addEventListener("input", validate);
-document.addEventListener("DOMContentLoaded", validate);
+// Кнопка всегда активна
+regButton.disabled = false;
 
 regButton.addEventListener("click", async () => {
     const name     = regNameInput.value.trim();
     const username = regUsernameInput.value.trim().toLowerCase().replace("@", "");
+
+    // Подсветить пустые поля
+    regNameInput.style.borderColor     = !name     ? "rgba(255,100,100,0.7)" : "rgba(255,255,255,0.15)";
+    regUsernameInput.style.borderColor = !username ? "rgba(255,100,100,0.7)" : "rgba(255,255,255,0.15)";
+
     if (!name || !username) return;
 
     state.setMyName(name);
@@ -47,16 +45,17 @@ regButton.addEventListener("click", async () => {
     regScreen.classList.add("hidden");
     updateTopBar();
     updateProfileUI();
+
     await loadAllUsers();
     subscribeAllUsers();
     loadFeed();
     loadChats();
 });
 
-export function showRegistration()  { regScreen.classList.remove("hidden"); }
-export function hideRegistration()  { regScreen.classList.add("hidden"); }
+export function showRegistration() { regScreen.classList.remove("hidden"); }
+export function hideRegistration() { regScreen.classList.add("hidden"); }
 
-function updateProfileUI() {
+export function updateProfileUI() {
     document.getElementById("profile-name-text").textContent     = state.myName;
     document.getElementById("profile-username-text").textContent = "@" + state.myUsername;
 
@@ -72,5 +71,3 @@ function updateProfileUI() {
         ph.style.display  = "block";
     }
 }
-
-export { updateProfileUI };
