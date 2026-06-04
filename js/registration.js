@@ -11,8 +11,21 @@ const regNameInput     = document.getElementById("reg-name-input");
 const regUsernameInput = document.getElementById("reg-username-input");
 const regButton        = document.getElementById("reg-button");
 
-// Кнопка всегда активна
-regButton.disabled = false;
+// Кнопка изначально неактивна
+regButton.disabled = true;
+
+// Проверяем поля при вводе
+function checkInputs() {
+    const name     = regNameInput.value.trim();
+    const username = regUsernameInput.value.trim();
+    
+    // Активируем кнопку тол��ко если оба поля заполнены
+    regButton.disabled = !name || !username;
+}
+
+// Слушаем ввод в оба поля
+regNameInput.addEventListener("input", checkInputs);
+regUsernameInput.addEventListener("input", checkInputs);
 
 regButton.addEventListener("click", async () => {
     const name     = regNameInput.value.trim();
