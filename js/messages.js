@@ -129,24 +129,27 @@ export function loadChat(chatId) {
 
 // ===== ОТПРАВКА ТЕКСТА =====
 async function sendMessage() {
-    import('./state.js').then(async state => {
-        const text = msgInput.value.trim();
-        if (!text || !state.currentChatId) return;
-        msgInput.value = "";
+    const text = msgInput.value.trim();
+    if (!text) return;
+    
+    // Читаем state напрямую из модуля
+    const { currentChatId, myName, myAvatar, deviceId } = await import('./state.js');
+    
+    if (!currentChatId) return;
+    msgInput.value = "";
 
-        try {
-            await addDoc(messagesRef, {
-                deviceId:  deviceId,
-                name:      state.myName,
-                avatar:    state.myAvatar,
-                text:      text,
-                chatId:    state.currentChatId,
-                createdAt: serverTimestamp()
-            });
-        } catch (e) {
-            console.error("Ошибка отправки:", e);
-        }
-    });
+    try {
+        await addDoc(messagesRef, {
+            deviceId:  deviceId,
+            name:      myName,
+            avatar:    myAvatar,
+            text:      text,
+            chatId:    currentChatId,
+            createdAt: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Ошибка отправки:", e);
+    }
 }
 
 sendBtn.addEventListener("click", sendMessage);
