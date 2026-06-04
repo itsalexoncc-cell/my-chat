@@ -17,12 +17,15 @@ const regButton             = document.getElementById("reg-button");
 function validateRegistration() {
     const name     = regNameInput.value.trim();
     const username = regUsernameInput.value.trim();
-    regButton.disabled = !(name.length > 0 && username.length > 0);
+    const isValid  = name.length > 0 && username.length > 0;
+    regButton.disabled = !isValid;
+    regButton.style.opacity = isValid ? "1" : "0.6";
 }
 
 regNameInput.addEventListener("input", validateRegistration);
 regUsernameInput.addEventListener("input", validateRegistration);
 regFileInput.addEventListener("change", validateRegistration);
+validateRegistration();
 
 // ===== ЗАГРУЗКА ФОТО =====
 regFileInput.addEventListener("change", (e) => {
