@@ -5,7 +5,7 @@ import {
     serverTimestamp, deleteDoc
 } from './config.js';
 import * as state from './state.js';
-
+import { setUnsubscribeChat } from './state.js';
 import { chatWindow } from './ui.js';
 
 // ===== ЭЛЕМЕНТЫ =====
@@ -18,11 +18,10 @@ const imageInput = document.getElementById("image-input");
 export function buildMsgEl(msg, animate = false) {
     const isOutgoing = msg.deviceId === state.deviceId;
 
+    const msgEl     = document.createElement("div");
+    msgEl.className = `msg ${isOutgoing ? 'outgoing' : 'incoming'}${animate ? ' msg-fly' : ''}`;
 
-    const msgEl       = document.createElement("div");
-    msgEl.className   = `msg ${isOutgoing ? 'outgoing' : 'incoming'}${animate ? ' msg-fly' : ''}`;
-
-    const avatarSrc   = msg.avatar || "";
+    const avatarSrc = msg.avatar || "";
 
     let content = `
         <div class="msg-sender">
@@ -59,17 +58,15 @@ export function buildMsgEl(msg, animate = false) {
 
 // ===== ЗАГРУЗКА ЧАТА (REALTIME) =====
 export function loadChat(chatId) {
-    import('./state.js').then(state => {
-        if (state.unsubscribeChat) {
-            state.unsubscribeChat();
-            setUnsubscribeChat(null);
-        }
-    });
+    if (state.unsubscribeChat) {
+        state.unsubscribeChat();
+        setUnsubscribeChat(null);
+    }
 
     chatWindow.innerHTML = "";
 
-    const renderedIds    = new Set();
-    let initialLoadDone  = false;
+    const renderedIds   = new Set();
+    let initialLoadDone = false;
 
     const q = query(messagesRef, where("chatId", "==", chatId));
 
@@ -128,21 +125,16 @@ export function loadChat(chatId) {
 // ===== ОТПРАВКА ТЕКСТА =====
 async function sendMessage() {
     const text = msgInput.value.trim();
-    if (!text) return;
-    
-    // Читаем state напрямую из модуля
-    const { currentChatId, myName, myAvatar, deviceId } = await import('./state.js');
-    
-    if (!currentChatId) return;
+    if (!text || !state.currentChatId) return;
     msgInput.value = "";
 
     try {
         await addDoc(messagesRef, {
-            deviceId:  deviceId,
-            name:      myName,
-            avatar:    myAvatar,
+            deviceId:  state.deviceId,
+            name:      state.myName,
+            avatar:    state.myAvatar,
             text:      text,
-            chatId:    currentChatId,
+            chatId:    state.currentChatId,
             createdAt: serverTimestamp()
         });
     } catch (e) {
@@ -160,50 +152,47 @@ imageBtn.addEventListener("click", () => imageInput.click());
 
 imageInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
+    if (!file || !state.currentChatId) return;
 
-    import('./state.js').then(state => {
-        if (!file || !state.currentChatId) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const img = new Image();
+        img.onload = async () => {
+            try {
+                const canvas  = document.createElement("canvas");
+                const ctx     = canvas.getContext("2d");
+                const maxSize = 1280;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = async () => {
-                try {
-                    const canvas  = document.createElement("canvas");
-                    const ctx     = canvas.getContext("2d");
-                    const maxSize = 1280;
+                let width  = img.width;
+                let height = img.height;
 
-                    let width  = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
-                    } else {
-                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
-                    }
-
-                    canvas.width  = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    const compressedImage = canvas.toDataURL("image/jpeg", 0.7);
-
-                    await addDoc(messagesRef, {
-                        deviceId:  deviceId,
-                        name:      state.myName,
-                        avatar:    state.myAvatar,
-                        image:     compressedImage,
-                        chatId:    state.currentChatId,
-                        createdAt: serverTimestamp()
-                    });
-                } catch (e) {
-                    console.error("Ошибка отправки фото:", e);
+                if (width > height) {
+                    if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                } else {
+                    if (height > maxSize) { width *= maxSize / height; height = maxSize; }
                 }
-            };
-            img.src = event.target.result;
+
+                canvas.width  = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedImage = canvas.toDataURL("image/jpeg", 0.7);
+
+                await addDoc(messagesRef, {
+                    deviceId:  state.deviceId,
+                    name:      state.myName,
+                    avatar:    state.myAvatar,
+                    image:     compressedImage,
+                    chatId:    state.currentChatId,
+                    createdAt: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Ошибка отправки фото:", e);
+            }
         };
-        reader.readAsDataURL(file);
-    });
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
 });
 
 // ===== РАСКРЫТИЕ ФОТО =====
