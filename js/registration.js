@@ -14,11 +14,12 @@ const regButton      = document.getElementById("reg-button");
 function validate() {
     const ok = regNameInput.value.trim().length > 0 && regUsernameInput.value.trim().length > 0;
     regButton.disabled = !ok;
+    regButton.style.opacity = ok ? "1" : "0.4";
 }
 
 regNameInput.addEventListener("input", validate);
 regUsernameInput.addEventListener("input", validate);
-validate();
+document.addEventListener("DOMContentLoaded", validate);
 
 regButton.addEventListener("click", async () => {
     const name     = regNameInput.value.trim();
