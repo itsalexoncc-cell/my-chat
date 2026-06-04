@@ -4,11 +4,8 @@ import {
     query, where, orderBy, onSnapshot,
     serverTimestamp, deleteDoc
 } from './config.js';
-import {
-    deviceId, myName, myAvatar,
-    currentChatId,
-    unsubscribeChat, setUnsubscribeChat
-} from './state.js';
+import * as state from './state.js';
+
 import { chatWindow } from './ui.js';
 
 // ===== ЭЛЕМЕНТЫ =====
@@ -19,7 +16,8 @@ const imageInput = document.getElementById("image-input");
 
 // ===== ПОСТРОИТЬ ЭЛЕМЕНТ СООБЩЕНИЯ =====
 export function buildMsgEl(msg, animate = false) {
-    const isOutgoing = msg.deviceId === deviceId;
+    const isOutgoing = msg.deviceId === state.deviceId;
+
 
     const msgEl       = document.createElement("div");
     msgEl.className   = `msg ${isOutgoing ? 'outgoing' : 'incoming'}${animate ? ' msg-fly' : ''}`;
