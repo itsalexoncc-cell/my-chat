@@ -168,6 +168,34 @@
     </div>
 </div>
 
+<script>
+// Инициализация регистрации с обработчиком input
+window.initRegForm = function() {
+    const regNameInput = document.getElementById("reg-name-input");
+    const regUsernameInput = document.getElementById("reg-username-input");
+    const regButton = document.getElementById("reg-button");
+
+    function checkInputs() {
+        const name = regNameInput.value.trim();
+        const username = regUsernameInput.value.trim();
+        regButton.disabled = !name || !username;
+        console.log("Проверка полей - Имя:", name, "Юзер:", username, "Кнопка disabled:", regButton.disabled);
+    }
+
+    regNameInput.addEventListener("input", checkInputs);
+    regUsernameInput.addEventListener("input", checkInputs);
+    
+    console.log("Регистрация инициализирована");
+};
+
+// Вызываем при загрузке
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", window.initRegForm);
+} else {
+    window.initRegForm();
+}
+</script>
+
 <script type="module" src="js/main.js"></script>
 </body>
 </html>
