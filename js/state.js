@@ -1,13 +1,13 @@
 // ===== DEVICE ID =====
-let deviceId = localStorage.getItem("device_id");
-export const isFirstLaunch = !deviceId;
+let _deviceId = localStorage.getItem("device_id");
+export const isFirstLaunch = !_deviceId;
 
-if (!deviceId) {
-    deviceId = crypto.randomUUID();
-    localStorage.setItem("device_id", deviceId);
+if (!_deviceId) {
+    _deviceId = crypto.randomUUID();
+    localStorage.setItem("device_id", _deviceId);
 }
 
-export { deviceId };
+export const deviceId = _deviceId;
 
 // ===== ПРОФИЛЬ =====
 export let myName     = localStorage.getItem("chat_name")     || "";
@@ -31,4 +31,4 @@ export function setCurrentContactUser(v)  { currentContactUser  = v; }
 export function setIsInChatsList(v)       { isInChatsList       = v; }
 export function setAllUsers(v)            { allUsers            = v; }
 export function setUnsubscribeChat(v)     { unsubscribeChat     = v; }
-export function setUnsubscribeAl
+export function setUnsubscribeAllChats(v) { unsubscribeAllChats = v; }
