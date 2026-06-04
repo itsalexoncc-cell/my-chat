@@ -1,20 +1,18 @@
 import { messagesRef, query, orderBy, onSnapshot } from './config.js';
-import { deviceId, allUsers, setUnsubscribeAllChats, unsubscribeAllChats } from './state.js';
+import * as state from './state.js';
+import { setUnsubscribeAllChats } from './state.js';
 import { showChat } from './ui.js';
 
-// ===== ЭЛЕМЕНТЫ =====
 const chatsListItems = document.getElementById("chats-list-items");
 
 // ===== ЗАГРУЗКА ВСЕХ ЧАТОВ =====
 export function loadAllChats() {
     chatsListItems.innerHTML = "";
 
-    import('./state.js').then(state => {
-        if (state.unsubscribeAllChats) {
-            state.unsubscribeAllChats();
-            setUnsubscribeAllChats(null);
-        }
-    });
+    if (state.unsubscribeAllChats) {
+        state.unsubscribeAllChats();
+        setUnsubscribeAllChats(null);
+    }
 
     const q = query(messagesRef, orderBy("createdAt", "desc"));
 
@@ -24,11 +22,11 @@ export function loadAllChats() {
         snapshot.forEach(docSnap => {
             const msg = docSnap.data();
             const cid = msg.chatId;
-            if (!cid || !cid.includes(deviceId)) return;
+            if (!cid || !cid.includes(state.deviceId)) return;
 
             if (!chatMap[cid]) {
-                const parts         = cid.split("__");
-                const contactDeviceId = parts[0] === deviceId ? parts[1] : parts[0];
+                const parts = cid.split("__");
+                const contactDeviceId = parts[0] === state.deviceId ? parts[1] : parts[0];
 
                 chatMap[cid] = {
                     chatId:          cid,
@@ -58,34 +56,32 @@ function renderChatsList(chatMap) {
         return;
     }
 
-    import('./state.js').then(state => {
-        for (const chatId in chatMap) {
-            const chat        = chatMap[chatId];
-            const contactUser = state.allUsers.find(u => u.deviceId === chat.contactDeviceId);
+    for (const chatId in chatMap) {
+        const chat        = chatMap[chatId];
+        const contactUser = state.allUsers.find(u => u.deviceId === chat.contactDeviceId);
 
-            const name   = contactUser ? contactUser.name   : chat.contactDeviceId.slice(0, 8) + "…";
-            const avatar = contactUser ? contactUser.avatar : "";
+        const name   = contactUser ? contactUser.name   : chat.contactDeviceId.slice(0, 8) + "…";
+        const avatar = contactUser ? contactUser.avatar : "";
 
-            const contactObj = contactUser || {
-                name:     name,
-                avatar:   "",
-                deviceId: chat.contactDeviceId
-            };
+        const contactObj = contactUser || {
+            name:     name,
+            avatar:   "",
+            deviceId: chat.contactDeviceId
+        };
 
-            const el = document.createElement("div");
-            el.className = "chat-item";
-            el.innerHTML = `
-                <div class="chat-item-avatar">
-                    ${avatar ? `<img src="${avatar}">` : '👤'}
-                </div>
-                <div class="chat-item-info">
-                    <div class="chat-item-name">${name}</div>
-                    <div class="chat-item-preview">${chat.lastMessage}</div>
-                </div>`;
-            el.onclick = () => showChat(chatId, contactObj);
-            chatsListItems.appendChild(el);
-        }
-    });
+        const el = document.createElement("div");
+        el.className = "chat-item";
+        el.innerHTML = `
+            <div class="chat-item-avatar">
+                ${avatar ? `<img src="${avatar}">` : '👤'}
+            </div>
+            <div class="chat-item-info">
+                <div class="chat-item-name">${name}</div>
+                <div class="chat-item-preview">${chat.lastMessage}</div>
+            </div>`;
+        el.onclick = () => showChat(chatId, contactObj);
+        chatsListItems.appendChild(el);
+    }
 }
 
 // ===== ДОБАВИТЬ ЧАТ В СПИСОК =====
