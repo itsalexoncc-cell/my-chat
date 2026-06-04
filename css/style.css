@@ -134,7 +134,6 @@ body {
 }
 
 .reg-button:active:not(:disabled) { transform: scale(0.93); }
-.reg-button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ===== ГЛАВНАЯ ОБОЛОЧКА ===== */
 #app-shell {
