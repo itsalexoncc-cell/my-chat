@@ -69,7 +69,6 @@ function renderChats(chatMap) {
                 <div class="chat-item-avatar">
                     ${avatar ? `<img src="${avatar}">` : "👤"}
                 </div>
-                <div class="chat-item-info">
                     <div class="chat-item-name">${name}</div>
                     <div class="chat-item-preview">${chat.lastMessage}</div>
                 </div>
