@@ -11,14 +11,15 @@ html, body {
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
-    background: #1a8cff;
+    background: #f0f4ff;
 }
 
 body {
     display: flex;
     flex-direction: column;
-    background: #1a8cff;
+    background: #f0f4ff;
 }
+
 
 /* ===== ЦВЕТА ===== */
 :root {
@@ -146,24 +147,26 @@ body {
 
 /* ===== ТОП-БАР ===== */
 #top-bar {
-    padding-top: max(14px, env(safe-area-inset-top));
-    padding-left: 12px;
-    padding-right: 12px;
-    padding-bottom: 0;
-    background: var(--blue);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
+    position: fixed;
+    top: max(14px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    padding: 0;
+    background: transparent;
+    width: calc(100% - 32px);
 }
 
 /* ===== ТАБЫ ===== */
 #tabs {
     display: flex;
     gap: 0;
-    background: rgba(0,0,0,0.12);
-    border-radius: 18px;
-    padding: 3px;
-    margin-bottom: 14px;
+    background: rgba(26, 140, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 20px;
+    padding: 4px;
+    box-shadow: 0 4px 20px rgba(26,140,255,0.35);
 }
 
 .tab-btn {
