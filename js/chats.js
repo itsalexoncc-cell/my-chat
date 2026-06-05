@@ -133,16 +133,15 @@ export function addChatToList(chatId, user) {
     <div class="chat-item-delete-bg">Удалить</div>
     <div class="chat-item">
         <div class="chat-item-preview">
-            ${chat.lastMessage}
+            Начать переписку…
         </div>
         <div class="chat-item-avatar">
-            ${avatar ? `<img src="${avatar}">` : "👤"}
+            ${user.avatar ? `<img src="${user.avatar}">` : "👤"}
         </div>
         <div class="chat-item-name">
-            ${name}
+            ${user.name}
         </div>
-    </div>
-`;
+    </div>`;
 
     wrap.querySelector(".chat-item").onclick = () => openChat(chatId, user);
     listEl.prepend(wrap);
