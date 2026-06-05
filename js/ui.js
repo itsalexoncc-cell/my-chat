@@ -2,20 +2,16 @@ import * as state from './state.js';
 import { setCurrentTab } from './state.js';
 
 // ===== ЭЛЕМЕНТЫ =====
-export const chatView    = document.getElementById("chat-view");
-export const chatWindow  = document.getElementById("chat-window");
-export const inputArea   = document.getElementById("input-area");
-export const fabBtn      = document.getElementById("fab-btn");
+export const chatView   = document.getElementById("chat-view");
+export const chatWindow = document.getElementById("chat-window");
+export const inputArea  = document.getElementById("input-area");
+export const fabBtn     = document.getElementById("fab-btn");
 
-
-
-// ===== ОБНОВИТЬ ТОП-БАР (заглушка) =====
-export function updateTopBar() {
-    // шапка убрана, функция оставлена для совместимости
-}
+// ===== ЗАГЛУШКА ТОП-БАР =====
+export function updateTopBar() {}
 
 // ===== ПЕРЕКЛЮЧЕНИЕ ТАБОВ =====
-window.switchTab = function(tab) {
+export function switchTab(tab) {
     setCurrentTab(tab);
 
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -24,28 +20,26 @@ window.switchTab = function(tab) {
     document.getElementById(tab + "-screen").classList.add("active");
     document.getElementById("tab-" + tab).classList.add("active");
 
-    // FAB логика
     if (tab === "feed") {
         fabBtn.style.display = "flex";
-        fabBtn.textContent = "+";
         fabBtn.onclick = () => window.openPostModal();
     } else if (tab === "chats") {
         fabBtn.style.display = "flex";
-        fabBtn.textContent = "+";
         fabBtn.onclick = () => window.openFindUserScreen();
     } else {
         fabBtn.style.display = "none";
     }
-};
+}
+
+window.switchTab = switchTab;
 
 // ===== ОТКРЫТЬ ЧАТ =====
 export function openChat(chatId, contactUser) {
     state.setCurrentChatId(chatId);
     state.setCurrentContactUser(contactUser);
 
-    // Обновить шапку чата
-    const nameEl = document.getElementById("chat-contact-name");
-    const avatarImg = document.getElementById("chat-contact-avatar-img");
+    const nameEl            = document.getElementById("chat-contact-name");
+    const avatarImg         = document.getElementById("chat-contact-avatar-img");
     const avatarPlaceholder = document.getElementById("chat-contact-avatar-placeholder");
 
     nameEl.textContent = contactUser.name || "Unknown";
