@@ -147,8 +147,6 @@ body {
 /* ===== ТОП-БАР ===== */
 #top-bar {
     padding-top: max(14px, env(safe-area-inset-top));
-    padding-left: 12px;
-    padding-right: 12px;
     padding-bottom: 0;
     background: var(--blue);
     display: flex;
