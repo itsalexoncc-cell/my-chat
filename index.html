@@ -159,6 +159,106 @@
     </div>
 </div>
 
+<!-- ===== РЕГИСТРАЦИЯ — ЛОГИКА ПРЯМО ЗДЕСЬ ===== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDjrf31YqY1DZK9cFHPUDiFIZF2xcVsVZc",
+    authDomain: "ios-chat-7b9eb.firebaseapp.com",
+    projectId: "ios-chat-7b9eb",
+    storageBucket: "ios-chat-7b9eb.firebasestorage.app",
+    messagingSenderId: "175359872932",
+    appId: "1:175359872932:web:0f97b172eba4d411a0bb31"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ===== DEVICE ID =====
+let deviceId = localStorage.getItem("device_id");
+if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem("device_id", deviceId);
+}
+
+const regScreen        = document.getElementById("registration-screen");
+const appShell         = document.getElementById("app-shell");
+const regNameInput     = document.getElementById("reg-name-input");
+const regUsernameInput = document.getElementById("reg-username-input");
+const regButton        = document.getElementById("reg-button");
+
+// Если уже зарегистрирован — скрыть экран регистрации
+const savedName = localStorage.getItem("chat_name");
+if (savedName) {
+    regScreen.classList.add("hidden");
+    appShell.style.display = "flex";
+    updateProfileUI();
+}
+
+regButton.addEventListener("click", async () => {
+    const name     = regNameInput.value.trim();
+    const username = regUsernameInput.value.trim().toLowerCase().replace("@", "");
+
+    regNameInput.style.borderColor     = !name     ? "rgba(255,100,100,0.7)" : "rgba(255,255,255,0.15)";
+    regUsernameInput.style.borderColor = !username ? "rgba(255,100,100,0.7)" : "rgba(255,255,255,0.15)";
+
+    if (!name || !username) return;
+
+    try {
+        localStorage.setItem("chat_name",     name);
+        localStorage.setItem("chat_username", username);
+        localStorage.setItem("chat_avatar",   "");
+
+        await setDoc(doc(db, "users", deviceId), {
+            deviceId,
+            name,
+            username,
+            avatar:    "",
+            updatedAt: serverTimestamp()
+        });
+
+        regScreen.classList.add("hidden");
+        appShell.style.display = "flex";
+        updateProfileUI();
+
+        // Сообщаем модульному коду что регистрация завершена
+        window.dispatchEvent(new CustomEvent("app-ready"));
+
+    } catch(e) {
+        console.error("Ошибка регистрации:", e);
+        alert("Ошибка: " + e.message);
+    }
+});
+
+function updateProfileUI() {
+    const name     = localStorage.getItem("chat_name")     || "";
+    const username = localStorage.getItem("chat_username") || "";
+    const avatar   = localStorage.getItem("chat_avatar")   || "";
+
+    const nameEl = document.getElementById("profile-name-text");
+    const usEl   = document.getElementById("profile-username-text");
+    const img    = document.getElementById("profile-avatar-img");
+    const ph     = document.getElementById("profile-avatar-placeholder");
+
+    if (nameEl) nameEl.textContent = name;
+    if (usEl)   usEl.textContent   = "@" + username;
+
+    if (avatar && img && ph) {
+        img.src = avatar;
+        img.style.display = "block";
+        ph.style.display  = "none";
+    }
+}
+
+// Делаем доступным глобально для других модулей
+window.updateProfileUI = updateProfileUI;
+window.appDeviceId     = deviceId;
+</script>
+
+<!-- ===== ОСНОВНОЙ МОДУЛЬНЫЙ КОД ===== -->
 <script type="module" src="js/main.js"></script>
+
 </body>
 </html>
