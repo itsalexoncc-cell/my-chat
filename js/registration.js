@@ -1,6 +1,6 @@
 import { db, setDoc, doc, serverTimestamp } from './config.js';
 import * as state from './state.js';
-import { updateTopBar } from './ui.js';
+import { updateTopBar, switchTab } from './ui.js';
 import { loadAllUsers, subscribeAllUsers } from './users.js';
 import { loadFeed } from './feed.js';
 import { loadChats } from './chats.js';
@@ -11,25 +11,36 @@ async function handleRegisterClick() {
     const regNameInput = document.getElementById("reg-name-input");
     const regUsernameInput = document.getElementById("reg-username-input");
     const regScreen = document.getElementById("registration-screen");
+    const appShell = document.getElementById("app-shell");
 
     const name     = regNameInput.value.trim();
     const username = regUsernameInput.value.trim().toLowerCase().replace("@", "");
+
+    console.log("Попытка регистрации:", { name, username });
 
     // Подсветить пустые поля
     regNameInput.style.borderColor     = !name     ? "rgba(255,100,100,0.7)" : "rgba(255,255,255,0.15)";
     regUsernameInput.style.borderColor = !username ? "rgba(255,100,100,0.7)" : "rgba(255,255,255,0.15)";
 
-    if (!name || !username) return;
-
-    state.setMyName(name);
-    state.setMyUsername(username);
-    state.setMyAvatar("");
-
-    localStorage.setItem("chat_name",     name);
-    localStorage.setItem("chat_username", username);
-    localStorage.setItem("chat_avatar",   "");
+    if (!name || !username) {
+        console.log("Поля не заполнены!");
+        return;
+    }
 
     try {
+        // Сохраняем в состояние
+        state.setMyName(name);
+        state.setMyUsername(username);
+        state.setMyAvatar("");
+
+        // Сохраняем в localStorage
+        localStorage.setItem("chat_name",     name);
+        localStorage.setItem("chat_username", username);
+        localStorage.setItem("chat_avatar",   "");
+
+        console.log("Отправка в Firebase...");
+
+        // Отправляем в Firebase
         await setDoc(doc(db, "users", state.deviceId), {
             deviceId:  state.deviceId,
             name,
@@ -37,16 +48,31 @@ async function handleRegisterClick() {
             avatar:    "",
             updatedAt: serverTimestamp()
         });
-    } catch(e) { console.error(e); }
 
-    regScreen.classList.add("hidden");
-    updateTopBar();
-    updateProfileUI();
+        console.log("Регистрация успешна!");
 
-    await loadAllUsers();
-    subscribeAllUsers();
-    loadFeed();
-    loadChats();
+        // Скрываем экран регистрации
+        regScreen.classList.add("hidden");
+        appShell.style.display = "flex";
+
+        // Обновляем UI
+        updateTopBar();
+        updateProfileUI();
+
+        // Загружаем данные и показываем ленту
+        await loadAllUsers();
+        subscribeAllUsers();
+        loadFeed();
+        loadChats();
+        loadProfilePhotos();
+
+        // Переключаемся на ленту
+        switchTab("feed");
+
+    } catch(e) { 
+        console.error("Ошибка регистрации:", e); 
+        alert("Ошибка: " + e.message);
+    }
 }
 
 // Инициализация кнопки регистрации при загрузке DOM
@@ -54,7 +80,9 @@ function setupRegisterButton() {
     const regButton = document.getElementById("reg-button");
     if (regButton) {
         regButton.addEventListener("click", handleRegisterClick);
-        console.log("Обработчик клика кнопки зарегистрирован");
+        console.log("✓ Обработчик клика кнопки зарегистрирован");
+    } else {
+        console.error("✗ Кнопка регистрации не найдена!");
     }
 }
 
