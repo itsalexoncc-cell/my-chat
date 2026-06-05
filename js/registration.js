@@ -1,6 +1,6 @@
 import { db, setDoc, doc, serverTimestamp } from './config.js';
 import * as state from './state.js';
-import { updateTopBar, switchTab } from './ui.js';
+import { updateTopBar } from './ui.js';
 import { loadAllUsers, subscribeAllUsers } from './users.js';
 import { loadFeed } from './feed.js';
 import { loadChats } from './chats.js';
@@ -66,8 +66,9 @@ async function handleRegisterClick() {
         loadChats();
         loadProfilePhotos();
 
-        // Переключаемся на ленту
-        switchTab("feed");
+        // Переключаемся на ленту используя window.switchTab
+        window.switchTab("feed");
+        console.log("✓ Регистрация завершена!");
 
     } catch(e) { 
         console.error("Ошибка регистрации:", e); 
