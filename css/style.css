@@ -425,7 +425,6 @@ body {
 
 /* ===== СПИСОК ЧАТОВ ===== */
 #chats-screen {
-    display: flex;
     flex-direction: column;
     overflow: hidden;
 }
