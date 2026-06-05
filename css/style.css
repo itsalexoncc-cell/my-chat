@@ -146,6 +146,9 @@ body {
 
 /* ===== ТОП-БАР ===== */
 #top-bar {
+    padding-top: max(14px, env(safe-area-inset-top));
+    padding-left: 12px;
+    padding-right: 12px;
     padding-bottom: 0;
     background: var(--blue);
     display: flex;
@@ -220,7 +223,7 @@ body {
 
 .post-card {
     background: white;
-    border-radius: 28px;
+    border-radius: 20px;
     padding: 16px;
     box-shadow: var(--shadow2);
     display: flex;
