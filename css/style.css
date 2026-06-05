@@ -161,7 +161,7 @@ body {
     display: flex;
     gap: 0;
     background: rgba(0,0,0,0.12);
-    border-radius: 22px;
+    border-radius: 16px;
     padding: 3px;
     margin-bottom: 14px;
 }
@@ -170,7 +170,7 @@ body {
     flex: 1;
     padding: 8px 0;
     border: none;
-    border-radius: 22px;
+    border-radius: 16px;
     background: transparent;
     color: rgba(255,255,255,0.6);
     font-size: 13px;
