@@ -2,12 +2,12 @@ import * as state from './state.js';
 import { setCurrentTab } from './state.js';
 
 // ===== ЭЛЕМЕНТЫ =====
-export const chatView   = document.getElementById("chat-view");
-export const chatWindow = document.getElementById("chat-window");
-export const inputArea  = document.getElementById("input-area");
-export const fabBtn     = document.getElementById("fab-btn");
+export const chatView    = document.getElementById("chat-view");
+export const chatWindow  = document.getElementById("chat-window");
+export const inputArea   = document.getElementById("input-area");
+export const fabBtn      = document.getElementById("fab-btn");
 
-// ===== ЗАГЛУШКА ТОП-БАР =====
+// ===== ОБНОВИТЬ ТОП-БАР (шапка убрана, оставлена для совместимости) =====
 export function updateTopBar() {}
 
 // ===== ПЕРЕКЛЮЧЕНИЕ ТАБОВ =====
@@ -20,11 +20,14 @@ export function switchTab(tab) {
     document.getElementById(tab + "-screen").classList.add("active");
     document.getElementById("tab-" + tab).classList.add("active");
 
+    // FAB логика
     if (tab === "feed") {
         fabBtn.style.display = "flex";
+        fabBtn.textContent = "+";
         fabBtn.onclick = () => window.openPostModal();
     } else if (tab === "chats") {
         fabBtn.style.display = "flex";
+        fabBtn.textContent = "+";
         fabBtn.onclick = () => window.openFindUserScreen();
     } else {
         fabBtn.style.display = "none";
