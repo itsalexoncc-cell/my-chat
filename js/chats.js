@@ -129,16 +129,20 @@ export function addChatToList(chatId, user) {
     wrap.className = "chat-item-wrap";
     wrap.dataset.chatId = chatId;
     wrap.innerHTML = `
-        <div class="chat-item-delete-bg">Удалить</div>
-        <div class="chat-item">
-            <div class="chat-item-avatar">
-                ${user.avatar ? `<img src="${user.avatar}">` : "👤"}
-            </div>
-            <div class="chat-item-info">
-                <div class="chat-item-name">${user.name}</div>
-                <div class="chat-item-preview">Начать переписку…</div>
-            </div>
-        </div>`;
+        wrap.innerHTML = `
+    <div class="chat-item-delete-bg">Удалить</div>
+    <div class="chat-item">
+        <div class="chat-item-preview">
+            ${chat.lastMessage}
+        </div>
+        <div class="chat-item-avatar">
+            ${avatar ? `<img src="${avatar}">` : "👤"}
+        </div>
+        <div class="chat-item-name">
+            ${name}
+        </div>
+    </div>
+`;
 
     wrap.querySelector(".chat-item").onclick = () => openChat(chatId, user);
     listEl.prepend(wrap);
