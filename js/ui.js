@@ -25,7 +25,7 @@ export function updateTopBar() {
 }
 
 // ===== ПЕРЕКЛЮЧЕНИЕ ТАБОВ =====
-window.switchTab = function(tab) {
+export function switchTab(tab) {
     setCurrentTab(tab);
 
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -46,7 +46,10 @@ window.switchTab = function(tab) {
     } else {
         fabBtn.style.display = "none";
     }
-};
+}
+
+// Также сохраняем в window для использования в onclick
+window.switchTab = switchTab;
 
 // ===== ОТКРЫТЬ ЧАТ =====
 export function openChat(chatId, contactUser) {
