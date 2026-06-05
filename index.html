@@ -26,24 +26,15 @@
         </div>
         <input type="text" id="reg-name-input" class="reg-input" placeholder="Твоё имя">
         <input type="text" id="reg-username-input" class="reg-input" placeholder="@username">
-        <button id="reg-button" class="reg-button" disabled>→</button>
+        <button id="reg-button" class="reg-button">→</button>
     </div>
 </div>
 
 <!-- ===== ГЛАВНАЯ ОБОЛОЧКА ===== -->
 <div id="app-shell">
 
-    <!-- ТОП-БАР -->
+    <!-- ТОЛЬКО ТАБЫ -->
     <div id="top-bar">
-        <div class="top-bar-row">
-            <div id="top-avatar" onclick="window.switchTab('profile')">
-                <img id="top-avatar-img" style="display:none;">
-                <span id="top-avatar-placeholder">👤</span>
-            </div>
-            <div id="top-name">Chat</div>
-        </div>
-
-        <!-- ТАБЫ -->
         <div id="tabs">
             <button class="tab-btn active" onclick="window.switchTab('feed')" id="tab-feed">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -78,7 +69,7 @@
         <!-- ПРОФИЛЬ -->
         <div id="profile-screen" class="screen">
             <div class="profile-header-section">
-                <div class="profile-big-avatar" id="profile-big-avatar" onclick="document.getElementById('file-input').click()">
+                <div class="profile-big-avatar" id="profile-big-avatar">
                     <img id="profile-avatar-img" style="display:none;">
                     <span id="profile-avatar-placeholder">👤</span>
                 </div>
@@ -103,7 +94,7 @@
     </div>
 </div>
 
-<!-- ===== ЧАТ (поверх всего) ===== -->
+<!-- ===== ЧАТ ===== -->
 <div id="chat-view">
     <div class="chat-top-bar">
         <button class="chat-back-btn" onclick="window.closeChat()">←</button>
@@ -167,34 +158,6 @@
         </div>
     </div>
 </div>
-
-<script>
-// Инициализация регистрации с обработчиком input
-window.initRegForm = function() {
-    const regNameInput = document.getElementById("reg-name-input");
-    const regUsernameInput = document.getElementById("reg-username-input");
-    const regButton = document.getElementById("reg-button");
-
-    function checkInputs() {
-        const name = regNameInput.value.trim();
-        const username = regUsernameInput.value.trim();
-        regButton.disabled = !name || !username;
-        console.log("Проверка полей - Имя:", name, "Юзер:", username, "Кнопка disabled:", regButton.disabled);
-    }
-
-    regNameInput.addEventListener("input", checkInputs);
-    regUsernameInput.addEventListener("input", checkInputs);
-    
-    console.log("Регистрация инициализирована");
-};
-
-// Вызываем при загрузке
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", window.initRegForm);
-} else {
-    window.initRegForm();
-}
-</script>
 
 <script type="module" src="js/main.js"></script>
 </body>
