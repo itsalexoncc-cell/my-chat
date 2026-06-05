@@ -201,8 +201,7 @@ body {
     display: flex;
     flex-direction: column;
     background: var(--bg);
-    border-top-left-radius: 28px;
-    border-top-right-radius: 28px;
+    padding-top: calc(max(14px, env(safe-area-inset-top)) + 56px);
 }
 
 /* ===== ЭКРАНЫ ===== */
