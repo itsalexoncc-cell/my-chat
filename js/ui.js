@@ -7,25 +7,15 @@ export const chatWindow  = document.getElementById("chat-window");
 export const inputArea   = document.getElementById("input-area");
 export const fabBtn      = document.getElementById("fab-btn");
 
-const topAvatarImg         = document.getElementById("top-avatar-img");
-const topAvatarPlaceholder = document.getElementById("top-avatar-placeholder");
-const topName              = document.getElementById("top-name");
 
-// ===== ОБНОВИТЬ ТОП-БАР =====
+
+// ===== ОБНОВИТЬ ТОП-БАР (заглушка) =====
 export function updateTopBar() {
-    if (state.myAvatar) {
-        topAvatarImg.src = state.myAvatar;
-        topAvatarImg.style.display = "block";
-        topAvatarPlaceholder.style.display = "none";
-    } else {
-        topAvatarImg.style.display = "none";
-        topAvatarPlaceholder.style.display = "block";
-    }
-    topName.textContent = state.myName || "Chat";
+    // шапка убрана, функция оставлена для совместимости
 }
 
 // ===== ПЕРЕКЛЮЧЕНИЕ ТАБОВ =====
-export function switchTab(tab) {
+window.switchTab = function(tab) {
     setCurrentTab(tab);
 
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -46,10 +36,7 @@ export function switchTab(tab) {
     } else {
         fabBtn.style.display = "none";
     }
-}
-
-// Также сохраняем в window для использования в onclick
-window.switchTab = switchTab;
+};
 
 // ===== ОТКРЫТЬ ЧАТ =====
 export function openChat(chatId, contactUser) {
