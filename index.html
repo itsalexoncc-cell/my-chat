@@ -183,7 +183,7 @@ function typeNext(){
     if(ti >= tokens.length){
         li++;
         if(li >= LINES.length) return;
-        const pause = (li >= 3 && li <= 6) ? rand(40,80) : rand(40,80);
+        const pause = (li >= 3 && li <= 3) ? rand(40,80) : rand(40,80);
         setTimeout(startLine, pause);
         return;
     }
