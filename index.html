@@ -46,22 +46,43 @@ body{
 }
 .logo span{ color: #4285F4; }
 
-/* Строка поиска — заглушка под стиль */
-.search-bar{
+/* Терминал-анимация */
+.terminal{
     width:100%;
     background:white;
     border-radius:28px;
-    display:flex;
-    align-items:center;
-    padding:14px 20px;
-    gap:12px;
+    padding: 16px 20px;
     box-shadow:0 2px 8px rgba(0,0,0,.12);
     margin-bottom: 48px;
+    min-height: 56px;
+    display:flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
 }
-.search-text{
-    color:#9aa0a6;
-    font-size:16px;
-    flex:1;
+.terminal-line{
+    font-size: 13px;
+    color: #9aa0a6;
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.terminal-line.done{
+    color: #5f6368;
+}
+.cursor{
+    display:inline-block;
+    width: 2px;
+    height: 14px;
+    background: #4285F4;
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: blink .7s infinite;
+}
+@keyframes blink{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0; }
 }
 
 /* Сетка */
@@ -88,6 +109,7 @@ body{
     border-radius:28px;
     box-shadow:0 4px 16px rgba(0,0,0,.15);
     object-fit:cover;
+    background: #e8eaed;
 }
 </style>
 </head>
@@ -95,46 +117,85 @@ body{
 
     <div class="logo">AI <span>Hub</span></div>
 
-    <a class="search-bar" href="x-web-search://" onclick="window.location.href='x-web-search://';return false;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="7" stroke="#9aa0a6" stroke-width="2.2"/>
-            <path d="M16.5 16.5L21 21" stroke="#9aa0a6" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-        <span class="search-text">Поиск в Google</span>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <rect x="9" y="2" width="6" height="12" rx="3" fill="#4285F4"/>
-            <path d="M5 11a7 7 0 0014 0" stroke="#34A853" stroke-width="2" stroke-linecap="round" fill="none"/>
-            <line x1="12" y1="18" x2="12" y2="22" stroke="#EA4335" stroke-width="2" stroke-linecap="round"/>
-            <line x1="9" y1="22" x2="15" y2="22" stroke="#EA4335" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-    </a>
+    <!-- Терминал анимация -->
+    <div class="terminal" id="terminal"></div>
 
     <div class="grid">
-        <!-- ChatGPT -->
         <a class="app" href="chatgpt://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6448311069';},1500);">
-            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/512px-ChatGPT_logo.svg.png" alt="ChatGPT">
+            <img class="icon" src="./ai-chatgpt.png" alt="ChatGPT">
         </a>
-        <!-- Gemini -->
         <a class="app" href="googleapp://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6477120684';},1500);">
-            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/512px-Google_Gemini_logo.svg.png" alt="Gemini">
+            <img class="icon" src="./ai-gemini.png" alt="Gemini">
         </a>
-        <!-- Claude -->
         <a class="app" href="claude://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6475403990';},1500);">
-            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/512px-Claude_AI_logo.svg.png" alt="Claude">
+            <img class="icon" src="./ai-claude.png" alt="Claude">
         </a>
-        <!-- Copilot -->
         <a class="app" href="ms-copilot://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6453117818';},1500);">
-            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Microsoft_365_Copilot_Icon.svg/512px-Microsoft_365_Copilot_Icon.svg.png" alt="Copilot">
+            <img class="icon" src="./ai-copilot.png" alt="Copilot">
         </a>
-        <!-- Grok -->
         <a class="app" href="twitter://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6473111535';},1500);">
-            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_X_app.svg/512px-Logo_of_X_app.svg.png" alt="Grok">
+            <img class="icon" src="./ai-grok.png" alt="Grok">
         </a>
-        <!-- Perplexity -->
         <a class="app" href="perplexity://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6456990678';},1500);">
-            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Perplexity_AI_logo.svg/512px-Perplexity_AI_logo.svg.png" alt="Perplexity">
+            <img class="icon" src="./ai-perplexity.png" alt="Perplexity">
         </a>
     </div>
 
+<script>
+const lines = [
+    "Initializing neural networks...",
+    "Loading language models...",
+    "Connecting to AI endpoints...",
+    "Ready."
+];
+
+const terminal = document.getElementById('terminal');
+let lineIndex = 0;
+let charIndex = 0;
+let currentEl = null;
+let cursorEl = null;
+
+function nextLine() {
+    if (lineIndex >= lines.length) return;
+
+    // Убираем курсор с предыдущей строки
+    if (cursorEl) cursorEl.remove();
+
+    currentEl = document.createElement('div');
+    currentEl.className = 'terminal-line';
+    cursorEl = document.createElement('span');
+    cursorEl.className = 'cursor';
+    currentEl.appendChild(cursorEl);
+    terminal.appendChild(currentEl);
+
+    charIndex = 0;
+    typeChar();
+}
+
+function typeChar() {
+    const line = lines[lineIndex];
+    if (charIndex < line.length) {
+        currentEl.insertBefore(
+            document.createTextNode(line[charIndex]),
+            cursorEl
+        );
+        charIndex++;
+        setTimeout(typeChar, 38);
+    } else {
+        // Строка дописана
+        currentEl.classList.add('done');
+        lineIndex++;
+        if (lineIndex < lines.length) {
+            setTimeout(nextLine, 320);
+        } else {
+            // Всё готово — убираем курсор через секунду
+            setTimeout(() => { if(cursorEl) cursorEl.remove(); }, 1000);
+        }
+    }
+}
+
+// Старт
+setTimeout(nextLine, 400);
+</script>
 </body>
 </html>
