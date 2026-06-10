@@ -4,198 +4,202 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>AI Hub</title>
-<link rel="apple-touch-icon" href="icon.PNG">
+<link rel="apple-touch-icon" href="icon.jpg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="AI Hub">
 <link href="https://fonts.googleapis.com/css2?family=Product+Sans&display=swap" rel="stylesheet">
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
 html, body{
-    width:100%;
-    height:100%;
+    width:100%; height:100%;
     min-height:-webkit-fill-available;
     background:#f1f3f4;
     font-family:-apple-system,BlinkMacSystemFont,sans-serif;
 }
-
 body{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
+    display:flex; flex-direction:column; align-items:center;
     padding-top: calc(env(safe-area-inset-top) + 60px);
     padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
-    padding-left: 44px;
-    padding-right: 44px;
+    padding-left: 44px; padding-right: 44px;
 }
 
 .logo{
-    font-family: 'Product Sans', sans-serif;
-    font-size: 44px;
-    font-weight: 400;
-    line-height: 1;
-    margin-bottom: 24px;
-    letter-spacing: -0.5px;
-    color: #202124;
+    font-family:'Product Sans',sans-serif;
+    font-size:44px; font-weight:400; line-height:1;
+    margin-bottom:24px; letter-spacing:-0.5px; color:#202124;
 }
-.logo span{ color: #4285F4; }
+.logo span{ color:#4285F4; }
 
-/* Терминал-анимация */
+/* ===== ТЕРМИНАЛ ===== */
 .terminal{
     width:100%;
-    background:white;
-    border-radius:28px;
-    padding: 16px 20px;
-    box-shadow:0 2px 8px rgba(0,0,0,.12);
-    margin-bottom: 48px;
-    min-height: 56px;
+    background:#1a1a1a;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,.28);
+    margin-bottom:48px;
+}
+.term-bar{
+    background:#2d2d2d;
+    padding:9px 12px;
     display:flex;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
+    align-items:center;
+    gap:6px;
 }
-.terminal-line{
-    font-size: 13px;
-    color: #9aa0a6;
-    font-family: 'Courier New', monospace;
-    line-height: 1.5;
-    white-space: nowrap;
-    overflow: hidden;
+.dot{ width:11px; height:11px; border-radius:50%; }
+.dot-r{ background:#ff5f56; }
+.dot-y{ background:#ffbd2e; }
+.dot-g{ background:#27c93f; }
+.term-name{
+    font-size:11px; color:#888;
+    font-family:-apple-system,sans-serif;
+    margin:0 auto;
+    padding-right:29px; /* компенсация трёх точек */
 }
-.terminal-line.done{
-    color: #5f6368;
+.term-body{
+    padding:10px 12px 14px;
+    font-family:'Courier New',monospace;
+    font-size:12px;
+    line-height:1.45;
 }
+.tline{
+    display:flex;
+    gap:10px;
+    white-space:pre;
+    margin-bottom:2px;
+}
+.lnum{ color:#444; min-width:14px; text-align:right; flex-shrink:0; user-select:none; }
+.ltext{ flex:1; color:#f8f8f2; }
+
+/* цвета токенов */
+.kw  { color:#ff79c6; }
+.fn  { color:#50fa7b; }
+.str { color:#f1fa8c; }
+.dim { color:#6272a4; }
+.ok  { color:#50fa7b; }
+.err { color:#ff5555; }
+.num { color:#bd93f9; }
+
 .cursor{
     display:inline-block;
-    width: 2px;
-    height: 14px;
-    background: #4285F4;
-    margin-left: 2px;
-    vertical-align: middle;
-    animation: blink .7s infinite;
+    width:7px; height:13px;
+    background:#f8f8f2;
+    vertical-align:middle;
+    animation:blink .5s step-end infinite;
 }
-@keyframes blink{
-    0%,100%{ opacity:1; }
-    50%{ opacity:0; }
-}
+@keyframes blink{ 50%{ opacity:0; } }
 
-/* Сетка */
+/* ===== СЕТКА ===== */
 .grid{
     display:grid;
-    grid-template-columns: repeat(3, 88px);
-    justify-content: center;
-    column-gap: 44px;
-    row-gap: 44px;
-}
-
-.app{
-    text-decoration:none;
-    display:flex;
+    grid-template-columns:repeat(3,88px);
     justify-content:center;
-    align-items:center;
+    column-gap:44px; row-gap:44px;
 }
+.app{ text-decoration:none; display:flex; justify-content:center; align-items:center; }
 .app:active{ transform:scale(.90); }
-
 .icon{
-    width: 88px;
-    height: 88px;
-    display:block;
+    width:88px; height:88px; display:block;
     border-radius:28px;
     box-shadow:0 4px 16px rgba(0,0,0,.15);
-    object-fit:cover;
-    background: #e8eaed;
+    object-fit:cover; background:#e8eaed;
 }
 </style>
 </head>
 <body>
 
-    <div class="logo">AI <span>Hub</span></div>
+<div class="logo">AI <span>Hub</span></div>
 
-    <!-- Терминал анимация -->
-    <div class="terminal" id="terminal"></div>
-
-    <div class="grid">
-        <a class="app" href="chatgpt://">
-            <img class="icon" src="./ai-ChatGPT.PNG" alt="ChatGPT">
-        </a>
-        <a class="app" href="googleapp://">
-            <img class="icon" src="./ai-gemini.jpg" alt="Gemini">
-        </a>
-        <a class="app" href="claude://">
-            <img class="icon" src="./ai-claude.PNG" alt="Claude">
-        </a>
-        <a class="app" href="ms-copilot://">
-            <img class="icon" src="./ai-copilot.JPG" alt="Copilot">
-        </a>
-        <a class="app" href="twitter://">
-            <img class="icon" src="./ai-grok.WEBP" alt="Grok">
-        </a>
-        <a class="app" href="perplexity://">
-            <img class="icon" src="./ai-perplexity.PNG" alt="Perplexity">
-        </a>
+<div class="terminal">
+    <div class="term-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="term-name">bash — 80×12</div>
     </div>
+    <div class="term-body" id="termBody"></div>
+</div>
+
+<div class="grid">
+    <a class="app" href="chatgpt://"><img class="icon" src="./ai-chatgpt.png" alt="ChatGPT"></a>
+    <a class="app" href="googleapp://"><img class="icon" src="./ai-gemini.png" alt="Gemini"></a>
+    <a class="app" href="claude://"><img class="icon" src="./ai-claude.png" alt="Claude"></a>
+    <a class="app" href="ms-copilot://"><img class="icon" src="./ai-copilot.png" alt="Copilot"></a>
+    <a class="app" href="twitter://"><img class="icon" src="./ai-grok.png" alt="Grok"></a>
+    <a class="app" href="perplexity://"><img class="icon" src="./ai-perplexity.png" alt="Perplexity"></a>
+</div>
 
 <script>
-const lines = [
-    "Initializing neural networks...",
-    "Loading language models...",
-    "Connecting to AI endpoints...",
-    "Ready."
+// Строки терминала — каждая: массив токенов {cls, text}
+const LINES = [
+    [ {c:'fn',t:'node'}, {c:'str',t:' hub/init.js'} ],
+    [ {c:'dim',t:'› '}, {c:'kw',t:'import'}, {c:'',t:' { '}, {c:'fn',t:'loadModels'}, {c:'',t:' } '}, {c:'kw',t:'from'}, {c:'str',t:' "./ai-core"'} ],
+    [ {c:'dim',t:'› '}, {c:'fn',t:'loadModels'}, {c:'',t:'('}, {c:'str',t:'"gpt-4o"'}, {c:'',t:', '}, {c:'str',t:'"gemini-2.0"'}, {c:'',t:')'} ],
+    [ {c:'num',t:'[1/4]'}, {c:'',t:' Fetching weights...'} ],
+    [ {c:'num',t:'[2/4]'}, {c:'',t:' Compiling graph...'} ],
+    [ {c:'num',t:'[3/4]'}, {c:'',t:' Warming up endpoints...'} ],
+    [ {c:'num',t:'[4/4]'}, {c:'',t:' Binding context...'} ],
+    [ {c:'ok',t:'✓'}, {c:'',t:' All models ready. '}, {c:'dim',t:'(487ms)'} ],
+    [ {c:'fn',t:'$'}, {c:'',t:' '} ],   // последняя строка — просто промпт с курсором
 ];
 
-const terminal = document.getElementById('terminal');
-let lineIndex = 0;
-let charIndex = 0;
-let currentEl = null;
-let cursorEl = null;
+const body = document.getElementById('termBody');
+let li = 0; // line index
+let ti = 0; // token index
+let curRow = null, curText = null, cursorEl = null;
 
-function nextLine() {
-    if (lineIndex >= lines.length) return;
+function rand(min,max){ return min + Math.random()*(max-min)|0; }
 
-    // Убираем курсор с предыдущей строки
-    if (cursorEl) cursorEl.remove();
+function startLine(){
+    if(li >= LINES.length) return;
+    if(cursorEl) cursorEl.remove();
 
-    currentEl = document.createElement('div');
-    currentEl.className = 'terminal-line';
+    curRow = document.createElement('div');
+    curRow.className = 'tline';
+
+    const lnum = document.createElement('span');
+    lnum.className = 'lnum';
+    lnum.textContent = li+1;
+    curRow.appendChild(lnum);
+
+    curText = document.createElement('span');
+    curText.className = 'ltext';
     cursorEl = document.createElement('span');
     cursorEl.className = 'cursor';
-    currentEl.appendChild(cursorEl);
-    terminal.appendChild(currentEl);
+    curText.appendChild(cursorEl);
+    curRow.appendChild(curText);
+    body.appendChild(curRow);
 
-    charIndex = 0;
-    typeChar();
+    ti = 0;
+    typeNext();
 }
 
-function typeChar() {
-    const line = lines[lineIndex];
-    if (charIndex < line.length) {
-        currentEl.insertBefore(
-            document.createTextNode(line[charIndex]),
-            cursorEl
-        );
-        charIndex++;
-        setTimeout(typeChar, 38);
-    } else {
-        // Строка дописана
-        currentEl.classList.add('done');
-        lineIndex++;
-        if (lineIndex < lines.length) {
-            setTimeout(nextLine, 320);
-        } else {
-            // Всё готово — убираем курсор через секунду
-            setTimeout(() => { if(cursorEl) cursorEl.remove(); }, 5000);
-        }
+function typeNext(){
+    const tokens = LINES[li];
+    if(ti >= tokens.length){
+        li++;
+        if(li >= LINES.length) return;
+        const pause = (li >= 3 && li <= 6) ? rand(40,80) : rand(100,200);
+        setTimeout(startLine, pause);
+        return;
     }
+
+    const tok = tokens[ti];
+    // Добавляем весь токен сразу как span
+    const span = document.createElement('span');
+    if(tok.c) span.className = tok.c;
+    span.textContent = tok.t;
+    curText.insertBefore(span, cursorEl);
+
+    ti++;
+    // Пауза между токенами (словами)
+    const speed = rand(80, 180);
+    setTimeout(typeNext, speed);
 }
 
-// Старт
-setTimeout(nextLine, 400);
+setTimeout(startLine, 600);
 </script>
 </body>
 </html>
