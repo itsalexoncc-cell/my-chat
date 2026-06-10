@@ -31,11 +31,10 @@ body{
     align-items:center;
     padding-top: calc(env(safe-area-inset-top) + 60px);
     padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 44px;
+    padding-right: 44px;
 }
 
-/* Логотип */
 .logo{
     font-family: 'Product Sans', sans-serif;
     font-size: 44px;
@@ -47,103 +46,95 @@ body{
 }
 .logo span{ color: #4285F4; }
 
-/* Подзаголовок */
-.subtitle{
-    font-size: 14px;
-    color: #9aa0a6;
-    margin-bottom: 32px;
-    letter-spacing: 0.3px;
-}
-
-/* Карточка-список */
-.card{
-    width: 100%;
-    max-width: 480px;
-    background: white;
-    border-radius: 28px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,.10);
-}
-
-.item{
+/* Строка поиска — заглушка под стиль */
+.search-bar{
+    width:100%;
+    background:white;
+    border-radius:28px;
     display:flex;
     align-items:center;
-    text-decoration:none;
-    color:#202124;
-    padding: 14px 20px;
-    border-bottom: 1px solid #f1f3f4;
-    transition: background 0.15s;
+    padding:14px 20px;
+    gap:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+    margin-bottom: 48px;
 }
-.item:last-child{ border-bottom: none; }
-.item:active{ background: #f1f3f4; }
+.search-text{
+    color:#9aa0a6;
+    font-size:16px;
+    flex:1;
+}
+
+/* Сетка */
+.grid{
+    display:grid;
+    grid-template-columns: repeat(3, 88px);
+    justify-content: center;
+    column-gap: 44px;
+    row-gap: 44px;
+}
+
+.app{
+    text-decoration:none;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.app:active{ transform:scale(.90); }
 
 .icon{
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    margin-right: 16px;
-    flex-shrink: 0;
-    object-fit: cover;
-    background: #f1f3f4;
-}
-
-.name{
-    font-size: 17px;
-    font-weight: 500;
-    flex: 1;
-    letter-spacing: -0.2px;
-}
-
-.arrow{
-    font-size: 20px;
-    color: #bdc1c6;
-    font-weight: 300;
+    width: 88px;
+    height: 88px;
+    display:block;
+    border-radius:28px;
+    box-shadow:0 4px 16px rgba(0,0,0,.15);
+    object-fit:cover;
 }
 </style>
 </head>
 <body>
 
     <div class="logo">AI <span>Hub</span></div>
-    <div class="subtitle">Нейросети в одном месте</div>
 
-    <div class="card" id="list">
-        <div style="padding:30px;text-align:center;color:#9aa0a6">Загрузка...</div>
+    <a class="search-bar" href="x-web-search://" onclick="window.location.href='x-web-search://';return false;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="#9aa0a6" stroke-width="2.2"/>
+            <path d="M16.5 16.5L21 21" stroke="#9aa0a6" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span class="search-text">Поиск в Google</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="9" y="2" width="6" height="12" rx="3" fill="#4285F4"/>
+            <path d="M5 11a7 7 0 0014 0" stroke="#34A853" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <line x1="12" y1="18" x2="12" y2="22" stroke="#EA4335" stroke-width="2" stroke-linecap="round"/>
+            <line x1="9" y1="22" x2="15" y2="22" stroke="#EA4335" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </a>
+
+    <div class="grid">
+        <!-- ChatGPT -->
+        <a class="app" href="chatgpt://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6448311069';},1500);">
+            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/512px-ChatGPT_logo.svg.png" alt="ChatGPT">
+        </a>
+        <!-- Gemini -->
+        <a class="app" href="googleapp://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6477120684';},1500);">
+            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/512px-Google_Gemini_logo.svg.png" alt="Gemini">
+        </a>
+        <!-- Claude -->
+        <a class="app" href="claude://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6475403990';},1500);">
+            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/512px-Claude_AI_logo.svg.png" alt="Claude">
+        </a>
+        <!-- Copilot -->
+        <a class="app" href="ms-copilot://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6453117818';},1500);">
+            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Microsoft_365_Copilot_Icon.svg/512px-Microsoft_365_Copilot_Icon.svg.png" alt="Copilot">
+        </a>
+        <!-- Grok -->
+        <a class="app" href="twitter://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6473111535';},1500);">
+            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_X_app.svg/512px-Logo_of_X_app.svg.png" alt="Grok">
+        </a>
+        <!-- Perplexity -->
+        <a class="app" href="perplexity://" onclick="var t=Date.now();setTimeout(function(){if(Date.now()-t<2000)window.location.href='https://itunes.apple.com/app/id6456990678';},1500);">
+            <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Perplexity_AI_logo.svg/512px-Perplexity_AI_logo.svg.png" alt="Perplexity">
+        </a>
     </div>
 
-<script>
-const apps = [
-    { id:"6448311069", name:"ChatGPT",           scheme:"chatgpt://" },
-    { id:"6477120684", name:"Google Gemini",      scheme:"googleapp://" },
-    { id:"6475403990", name:"Claude",             scheme:"claude://" },
-    { id:"6453117818", name:"Microsoft Copilot",  scheme:"ms-copilot://" },
-    { id:"6473111535", name:"Grok",               scheme:"twitter://" }
-];
-
-const ids = apps.map(a => a.id).join(",");
-fetch(`https://itunes.apple.com/lookup?id=${ids}&entity=software`)
-.then(r => r.json())
-.then(data => {
-    const iconMap = {};
-    data.results.forEach(app => {
-        iconMap[String(app.trackId)] = app.artworkUrl512 || app.artworkUrl100;
-    });
-
-    const list = document.getElementById("list");
-    list.innerHTML = apps.map(app => {
-        const icon = iconMap[app.id] || "";
-        return `<a class="item" href="${app.scheme}" onclick="
-            var t=Date.now();
-            setTimeout(function(){
-                if(Date.now()-t<2000)
-                    window.location.href='https://itunes.apple.com/app/id${app.id}';
-            },1500);
-        ">
-            <img class="icon" src="${icon}" alt="${app.name}">
-            <span class="name">${app.name}</span>
-            <span class="arrow">›</span>
-        </a>`;
-    }).join("");
-});
-</script>
 </body>
 </html>
