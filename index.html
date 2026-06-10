@@ -183,7 +183,7 @@ function typeNext(){
     if(ti >= tokens.length){
         li++;
         if(li >= LINES.length) return;
-        const pause = (li >= 3 && li <= 6) ? rand(40,80) : rand(100,200);
+        const pause = (li >= 3 && li <= 6) ? rand(40,80) : rand(40,80);
         setTimeout(startLine, pause);
         return;
     }
@@ -197,7 +197,7 @@ function typeNext(){
 
     ti++;
     // Пауза между токенами (словами)
-    const speed = rand(80, 180);
+    const speed = rand(30, 80);
     setTimeout(typeNext, speed);
 }
 
