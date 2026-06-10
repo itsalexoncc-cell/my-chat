@@ -2,124 +2,90 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-<title>iOS Web Chat</title>
-
-<link rel="icon" type="image/jpeg" href="https://itsalexoncc-cell.github.io/my-chat/IMG_0101.jpeg">
-<link rel="apple-touch-icon" href="https://itsalexoncc-cell.github.io/my-chat/IMG_0101.jpeg">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#007aff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI Assistants</title>
+<link rel="apple-touch-icon" href="https://flaticon.com">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Chat">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<link rel="stylesheet" href="css/style.css">
+<meta name="apple-mobile-web-app-title" content="AI Apps">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:60px 20px;background:#0b0d17;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#ffffff}
+.title{text-align:center;font-size:16px;font-weight:700;letter-spacing:6px;color:#00ffcc;text-shadow:0 0 12px rgba(0,255,204,0.3);margin-bottom:26px;text-transform:uppercase}
+.card{background:rgba(20,24,41,.65);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.06);border-radius:32px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.item{display:flex;align-items:center;text-decoration:none;color:#ffffff;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.05);transition:background 0.2s ease}
+.item:last-child{border-bottom:none}
+.item:active{background:rgba(255,255,255,.05)}
+.icon{width:46px;height:46px;border-radius:14px;margin-right:16px;flex-shrink:0;background:#1a1f36;object-fit:cover;border:1px solid rgba(255,255,255,.1)}
+.name{font-size:18px;font-weight:500;letter-spacing:-0.2px}
+.arrow{margin-left:auto;font-size:22px;color:#4e5773;font-weight:300;padding-left:8px}
+.footer{margin-top:26px;text-align:center;font-size:12px;color:#4e5773;letter-spacing:1px}
+</style>
 </head>
-
 <body>
 
-<!-- ===== РЕГИСТРАЦИЯ ===== -->
-<div id="registration-screen">
-    <div class="reg-container">
-        <div class="reg-header">
-            <div class="reg-title">Chat</div>
-            <div class="reg-subtitle">Давай познакомимся!</div>
-        </div>
-
-        <div class="reg-avatar-section">
-            <div class="reg-avatar-button" onclick="document.getElementById('reg-file-input').click()">
-                <img id="reg-avatar-img" class="reg-avatar-img" style="display:none;">
-                <span id="reg-avatar-placeholder" class="reg-avatar-placeholder">+</span>
-            </div>
-            <div class="reg-avatar-text">Добавить фото</div>
-        </div>
-
-        <div class="reg-input-group">
-            <div class="reg-label">Твое имя</div>
-            <input type="text" id="reg-name-input" class="reg-input" placeholder="Как тебя зовут?">
-        </div>
-
-        <div class="reg-input-group">
-            <div class="reg-label">Юзернейм</div>
-            <input type="text" id="reg-username-input" class="reg-input" placeholder="@username">
-        </div>
-
-        <button id="reg-button" class="reg-button" disabled>Начать</button>
-    </div>
-    <input type="file" id="reg-file-input" accept="image/*" style="display:none;">
+<div class="title">AI Hub Launcher</div>
+<div class="card" id="list">
+  <div style="padding:30px;text-align:center;color:#4e5773">Инициализация нейросетей...</div>
 </div>
+<div class="footer">iOS AI Quantum Launcher</div>
 
-<!-- ===== ШАПКА ===== -->
-<div id="profile-header">
-    <button id="back-btn">‹</button>
+<script>
+// Список ИИ-приложений с официальными ID App Store и базовыми схемами
+const apps = [
+  { id: "6448311069", name: "ChatGPT", scheme: "chatgpt://" },
+  { id: "6477120684", name: "Google Gemini", scheme: "googleapp://" },
+  { id: "6475403990", name: "Claude (Anthropic)", scheme: "claude://" },
+  { id: "6453117818", name: "Microsoft Copilot", scheme: "ms-copilot://" },
+  { id: "6473111535", name: "Grok (X)", scheme: "twitter://" }
+];
 
-    <div id="avatar-container" onclick="handleAvatarClick()">
-        <img id="avatar-img" src="" style="display:none;">
-        <span id="avatar-placeholder">👤</span>
-    </div>
+const listContainer = document.getElementById('list');
 
-    <input type="file" id="file-input" accept="image/*" style="display:none;">
+async function loadApps() {
+  listContainer.innerHTML = '';
+  
+  for (const app of apps) {
+    let iconUrl = 'https://placeholder.com';
+    
+    try {
+      // Запрос к Apple iTunes API для динамического получения иконок приложений
+      const response = await fetch(`https://apple.com{app.id}`);
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        // Берем качественную иконку 512x512
+        iconUrl = data.results[0].artworkUrl512 || data.results[0].artworkUrl100;
+      }
+    } catch (e) {
+      console.error("Ошибка загрузки иконки для " + app.name, e);
+    }
 
-    <div id="header-name"></div>
+    const itemAnchor = document.createElement('a');
+    itemAnchor.className = 'item';
+    itemAnchor.href = app.scheme;
+    
+    // Если приложение не установлено, через 1.5 секунды предложит открыть App Store
+    itemAnchor.onclick = function(e) {
+      const start = Date.now();
+      setTimeout(() => {
+        if (Date.now() - start < 2000) {
+          window.location.href = `https://apple.com{app.id}`;
+        }
+      }, 1500);
+    };
 
-    <button id="delete-chat-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M19 6.4L5.4 20M5 6.4L18.6 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-    </button>
-</div>
+    itemAnchor.innerHTML = `
+      <img class="icon" src="${iconUrl}" alt="${app.name}">
+      <span class="name">${app.name}</span>
+      <span class="arrow">›</span>
+    `;
+    
+    listContainer.appendChild(itemAnchor);
+  }
+}
 
-<!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
-<div id="main-content">
-    <div id="chat-window" class="hidden"></div>
-
-    <div id="chats-list">
-        <div class="chats-header">
-            <div class="chats-title">Сообщения</div>
-            <button class="new-chat-btn" onclick="window.openFindUserScreen()">+</button>
-        </div>
-        <div id="chats-list-items"></div>
-    </div>
-</div>
-
-<!-- ===== ПОИСК ПОЛЬЗОВАТЕЛЯ ===== -->
-<div id="find-user-screen">
-    <div class="find-user-header">
-        <button class="find-back-btn" onclick="window.closeFindUserScreen()">‹</button>
-        <input type="text" id="find-search-input" class="find-search-input" placeholder="Поиск по юзернейму...">
-    </div>
-    <div id="find-user-content" class="find-user-content"></div>
-</div>
-
-<!-- ===== НИЖНЯЯ ПАНЕЛЬ ===== -->
-<div id="input-area" class="hidden">
-    <input type="text" id="msg-input" placeholder="Your messages" autocomplete="off">
-    <input type="file" id="image-input" accept="image/*" style="display:none;">
-    <button id="image-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M8 5L6.5 7H5C3.9 7 3 7.9 3 9V17C3 18.1 3.9 19 5 19H19C20.1 19 21 18.1 21 17V9C21 7.9 20.1 7 19 7H17.5L16 5H8Z" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="13" r="3" stroke="#6b7280" stroke-width="1.8"/>
-        </svg>
-    </button>
-    <button id="send-btn">➤</button>
-</div>
-
-<!-- ===== МОДАЛЬНОЕ ОКНО ===== -->
-<div class="modal-overlay" id="delete-modal">
-    <div class="modal-dialog">
-        <div class="modal-title">Удалить чат?</div>
-        <div class="modal-text">Это действие нельзя отменить</div>
-        <div class="modal-buttons">
-            <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('delete-modal').classList.remove('active')">Отмена</button>
-            <button class="modal-btn modal-btn-delete" onclick="window.confirmDeleteChat()">Удалить</button>
-        </div>
-    </div>
-</div>
-
-<!-- ===== ЕДИНСТВЕННЫЙ СКРИПТ ===== -->
-<script type="module" src="js/main.js"></script>
-
+// Запуск загрузки при старте страницы
+loadApps();
+</script>
 </body>
 </html>
