@@ -2,7 +2,9 @@ import { auth, db } from "./firebase.js";
 
 import {
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
+  browserLocalPersistence,
+  setPersistence,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
@@ -17,24 +19,19 @@ const userInfo = document.getElementById("user-info");
 const newChatBtn = document.getElementById("new-chat-btn");
 
 loginBtn.addEventListener("click", async () => {
-
   const provider = new GoogleAuthProvider();
 
   try {
-
-    await signInWithRedirect(auth, provider);
-
+    await setPersistence(auth, browserLocalPersistence);
+    const result = await signInWithPopup(auth, provider);
+    console.log("Вошёл:", result.user.displayName);
   } catch (error) {
-
     console.error(error);
     alert(error.message);
-
   }
-
 });
 
 onAuthStateChanged(auth, async (user) => {
-
   if (!user) return;
 
   await setDoc(
@@ -55,5 +52,4 @@ onAuthStateChanged(auth, async (user) => {
 
   loginBtn.style.display = "none";
   newChatBtn.style.display = "block";
-
 });
