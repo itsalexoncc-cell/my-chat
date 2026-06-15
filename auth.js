@@ -54,5 +54,6 @@ onAuthStateChanged(auth, async (user) => {
   `;
 
   loginBtn.style.display = "none";
+  newChatBtn.style.display = "block";
 
 });
