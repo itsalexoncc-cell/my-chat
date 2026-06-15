@@ -2,7 +2,7 @@ import { auth, db } from "./firebase.js";
 
 import {
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
@@ -21,7 +21,7 @@ loginBtn.addEventListener("click", async () => {
 
   try {
 
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
 
   } catch (error) {
 
