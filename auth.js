@@ -14,6 +14,7 @@ import {
 
 const loginBtn = document.getElementById("login-btn");
 const userInfo = document.getElementById("user-info");
+const newChatBtn = document.getElementById("new-chat-btn");
 
 loginBtn.addEventListener("click", async () => {
 
