@@ -22,7 +22,7 @@ loginBtn.addEventListener("click", async () => {
   const provider = new GoogleAuthProvider();
 
   try {
-    await setPersistence(auth, browserLocalPersistence);
+    setPersistence(auth, browserLocalPersistence);
     const result = await signInWithPopup(auth, provider);
     console.log("Вошёл:", result.user.displayName);
   } catch (error) {
