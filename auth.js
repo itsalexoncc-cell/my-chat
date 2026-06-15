@@ -1,4 +1,4 @@
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 import {
   GoogleAuthProvider,
@@ -6,35 +6,52 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
+import {
+  doc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
 const loginBtn = document.getElementById("login-btn");
 const userInfo = document.getElementById("user-info");
 
 loginBtn.addEventListener("click", async () => {
 
-    const provider = new GoogleAuthProvider();
+  const provider = new GoogleAuthProvider();
 
-    try {
+  try {
 
-        await signInWithPopup(auth, provider);
+    await signInWithPopup(auth, provider);
 
-    } catch(error){
+  } catch (error) {
 
-        console.error(error);
+    console.error(error);
+    alert(error.message);
 
-    }
+  }
 
 });
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
 
-    if(user){
+  if (!user) return;
 
-        userInfo.innerHTML = `
-            <p>${user.displayName}</p>
-            <p>${user.email}</p>
-        `;
+  await setDoc(
+    doc(db, "users", user.uid),
+    {
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      createdAt: serverTimestamp()
+    },
+    { merge: true }
+  );
 
-        loginBtn.style.display = "none";
-    }
+  userInfo.innerHTML = `
+    <p>${user.displayName}</p>
+    <p>${user.email}</p>
+  `;
+
+  loginBtn.style.display = "none";
 
 });
