@@ -1,11 +1,8 @@
-console.log("auth.js loaded");
 import { auth, db } from "./firebase.js";
 
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  browserLocalPersistence,
-  setPersistence,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
@@ -17,42 +14,61 @@ import {
 
 const loginBtn = document.getElementById("login-btn");
 const userInfo = document.getElementById("user-info");
-const newChatBtn = document.getElementById("new-chat-btn");
 
-loginBtn.addEventListener("click", async () => {
-
-  alert("Кнопка нажата");
-
-  const provider = new GoogleAuthProvider();
-
+async function signIn() {
   try {
-    await signInWithPopup(auth, provider);
-  } catch(error) {
-    alert(error.message);
-    console.error(error);
-  }
+    const provider = new GoogleAuthProvider();
 
-});
+    await signInWithPopup(auth, provider);
+
+  } catch (error) {
+    console.error("Ошибка входа:", error);
+    alert(error.message);
+  }
+}
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", signIn);
+}
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
 
-await setDoc(
-  doc(db, "users", user.uid),
-  {
-    displayName: user.displayName,
-    email: user.email,
-    photoURL: user.photoURL,
-    createdAt: serverTimestamp()
-  },
-  { merge: true }
-);
+  const authScreen = document.getElementById("auth-screen");
+  const appScreen = document.getElementById("app");
 
-document.getElementById("auth-screen").style.display = "none";
+  if (!user) {
 
-document.getElementById("app").style.display = "flex";
+    if (authScreen) authScreen.style.display = "flex";
+    if (appScreen) appScreen.style.display = "none";
 
-userInfo.innerHTML = `
-  <p>${user.displayName}</p>
-  <p>${user.email}</p>
+    return;
+  }
+
+  try {
+
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        displayName: user.displayName || "",
+        email: user.email || "",
+        photoURL: user.photoURL || "",
+        createdAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+  } catch (error) {
+    console.error("Ошибка Firestore:", error);
+  }
+
+  if (authScreen) authScreen.style.display = "none";
+  if (appScreen) appScreen.style.display = "flex";
+
+  if (userInfo) {
+    userInfo.innerHTML = `
+      <p>${user.displayName || "Без имени"}</p>
+      <p>${user.email || ""}</p>
+    `;
+  }
+
 });
