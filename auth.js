@@ -1,3 +1,4 @@
+console.log("auth.js loaded");
 import { auth, db } from "./firebase.js";
 
 import {
@@ -19,16 +20,18 @@ const userInfo = document.getElementById("user-info");
 const newChatBtn = document.getElementById("new-chat-btn");
 
 loginBtn.addEventListener("click", async () => {
+
+  alert("Кнопка нажата");
+
   const provider = new GoogleAuthProvider();
 
   try {
-    setPersistence(auth, browserLocalPersistence);
-    const result = await signInWithPopup(auth, provider);
-    console.log("Вошёл:", result.user.displayName);
-  } catch (error) {
-    console.error(error);
+    await signInWithPopup(auth, provider);
+  } catch(error) {
     alert(error.message);
+    console.error(error);
   }
+
 });
 
 onAuthStateChanged(auth, async (user) => {
