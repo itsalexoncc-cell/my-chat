@@ -5,17 +5,52 @@ body{
     color:white;
 }
 
-.container{
+#app{
+    display:flex;
+    height:100vh;
+}
+
+.sidebar{
+    width:280px;
+    background:#1a1a1a;
+    border-right:1px solid #333;
+    padding:15px;
+    box-sizing:border-box;
+}
+
+.chat-area{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+#messages{
+    font-size:20px;
+    opacity:.7;
+}
+
+#new-chat-btn{
+    width:100%;
+    margin-top:15px;
+    margin-bottom:15px;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+}
+
+.chat-item{
+    background:#222;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:8px;
+    cursor:pointer;
+}
+
+#auth-screen{
+    height:100vh;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    height:100vh;
-}
-
-button{
-    padding:12px 20px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
 }
