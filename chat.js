@@ -3,38 +3,63 @@ import { auth, db } from "./firebase.js";
 import {
   collection,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  where,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const newChatBtn = document.getElementById("new-chat-btn");
+const chatsList = document.getElementById("chats-list");
 
 newChatBtn.addEventListener("click", async () => {
 
   const user = auth.currentUser;
 
-  if (!user) {
-    alert("Сначала войдите");
-    return;
-  }
+  if (!user) return;
 
-  try {
+  await addDoc(
+    collection(db, "chats"),
+    {
+      userId: user.uid,
+      title: "Новый чат",
+      createdAt: serverTimestamp()
+    }
+  );
 
-    await addDoc(
-      collection(db, "chats"),
-      {
-        userId: user.uid,
-        title: "Новый чат",
-        createdAt: serverTimestamp()
-      }
-    );
+});
 
-    alert("Чат создан");
+auth.onAuthStateChanged?.(() => {});
 
-  } catch (error) {
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-    console.error(error);
-    alert(error.message);
+onAuthStateChanged(auth, (user) => {
 
-  }
+  if (!user) return;
+
+  const q = query(
+    collection(db, "chats"),
+    where("userId", "==", user.uid)
+  );
+
+  onSnapshot(q, (snapshot) => {
+
+    chatsList.innerHTML = "";
+
+    snapshot.forEach((docItem) => {
+
+      const div = document.createElement("div");
+
+      div.className = "chat-item";
+
+      div.textContent = docItem.data().title;
+
+      chatsList.appendChild(div);
+
+    });
+
+  });
 
 });
