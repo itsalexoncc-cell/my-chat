@@ -55,4 +55,4 @@ document.getElementById("app").style.display = "flex";
 userInfo.innerHTML = `
   <p>${user.displayName}</p>
   <p>${user.email}</p>
-`;
+});
