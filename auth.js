@@ -34,22 +34,22 @@ loginBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
-  await setDoc(
-    doc(db, "users", user.uid),
-    {
-      displayName: user.displayName,
-      email: user.email,
-      photoURL: user.photoURL,
-      createdAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+await setDoc(
+  doc(db, "users", user.uid),
+  {
+    displayName: user.displayName,
+    email: user.email,
+    photoURL: user.photoURL,
+    createdAt: serverTimestamp()
+  },
+  { merge: true }
+);
 
-  userInfo.innerHTML = `
-    <p>${user.displayName}</p>
-    <p>${user.email}</p>
-  `;
+document.getElementById("auth-screen").style.display = "none";
 
-  loginBtn.style.display = "none";
-  newChatBtn.style.display = "block";
-});
+document.getElementById("app").style.display = "flex";
+
+userInfo.innerHTML = `
+  <p>${user.displayName}</p>
+  <p>${user.email}</p>
+`;
