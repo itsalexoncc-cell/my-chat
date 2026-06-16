@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<div class="container">
+<div id="auth-screen">
 
     <h1>My Chat</h1>
 
@@ -17,15 +17,31 @@
         Войти через Google
     </button>
 
-    <div id="user-info"></div>
-    
-    <button id="new-chat-btn" style="display:none;">
-    + Новый чат
-</button>
+</div>
 
-<div id="chats-list"></div>
+<div id="app" style="display:none;">
 
-<div id="chats-list"></div>
+    <aside class="sidebar">
+
+        <div id="user-info"></div>
+
+        <button id="new-chat-btn">
+            + Новый чат
+        </button>
+
+        <div id="chats-list"></div>
+
+    </aside>
+
+    <main class="chat-area">
+
+        <div id="messages">
+
+            Выберите чат
+
+        </div>
+
+    </main>
 
 </div>
 
