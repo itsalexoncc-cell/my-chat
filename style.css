@@ -25,15 +25,8 @@ body{
 .bg{
     position:fixed;
     inset:0;
+    background:#ffffff;
     z-index:-1;
-
-    background:
-    radial-gradient(circle at 20% 20%,#8ec5ff 0%,transparent 35%),
-    radial-gradient(circle at 80% 25%,#d5b3ff 0%,transparent 35%),
-    radial-gradient(circle at 50% 80%,#b8ffd7 0%,transparent 35%);
-
-    filter:blur(90px);
-    opacity:.75;
 }
 
 .header{
@@ -72,6 +65,9 @@ body{
     border:1px solid var(--border);
 
     text-align:center;
+    box-shadow:
+    0 12px 40px rgba(0,0,0,.08),
+    0 4px 12px rgba(0,0,0,.06);
 }
 
 .hero-icon{
@@ -124,6 +120,9 @@ body{
     flex-direction:column;
     align-items:center;
     gap:10px;
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.08),
+    0 4px 12px rgba(0,0,0,.05);
 }
 
 .app-btn:active{
@@ -164,11 +163,14 @@ body{
 
     font-size:16px;
 
-    background:rgba(255,255,255,.85);
+    background:#ffffff;
 
     backdrop-filter:blur(30px);
 
     outline:none;
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.08),
+    0 4px 12px rgba(0,0,0,.05);
 }
 
 #searchBtn{
@@ -179,9 +181,48 @@ body{
 
     border-radius:30px;
 
-    background:#111;
+    background:#111111;
 
     color:white;
 
     font-size:24px;
+}
+
+.search-wrap{
+    position:fixed;
+    left:20px;
+    right:20px;
+    bottom:calc(env(safe-area-inset-bottom) + 16px);
+    
+    display:flex;
+    gap:10px;
+    align-items:center;
+    
+    padding:2px;
+    
+    border-radius:999px;
+    
+    background:linear-gradient(
+    90deg,
+    #4285f4,
+    #8b5cf6,
+    #ec4899,
+    #22c55e,
+    #4285f4
+    );
+    
+    background-size:300% 300%;
+    
+    animation:borderFlow 6s linear infinite;
+}
+
+@keyframes borderFlow{
+0%{
+background-position:0% 50%;
+}
+
+100%{
+background-position:300% 50%;
+}
+
 }
