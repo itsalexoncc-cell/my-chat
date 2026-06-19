@@ -2,51 +2,82 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Chat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>AI Hub</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="auth-screen">
+<div class="bg"></div>
 
-    <h1>My Chat</h1>
+<header class="header">
+    <button class="menu-btn">☰</button>
+    <h1>AI</h1>
+</header>
 
-    <button id="login-btn">
-        Войти через Google
+<section class="hero">
+
+    <div class="hero-icon">✦</div>
+
+    <h2>AI Assistant Hub</h2>
+
+    <p>
+        Быстрый доступ ко всем AI-сервисам
+    </p>
+
+</section>
+
+<section class="apps">
+
+    <button class="app-btn" data-url="chatgpt://">
+        <img src="icons/chatgpt.svg" alt="">
+        <span>ChatGPT</span>
+    </button>
+
+    <button class="app-btn" data-url="gemini://">
+        <img src="icons/gemini.svg" alt="">
+        <span>Gemini</span>
+    </button>
+
+    <button class="app-btn" data-url="claude://">
+        <img src="icons/claude.svg" alt="">
+        <span>Claude</span>
+    </button>
+
+    <button class="app-btn" data-url="grok://">
+        <img src="icons/grok.svg" alt="">
+        <span>Grok</span>
+    </button>
+
+    <button class="app-btn" data-url="microsoft-copilot://">
+        <img src="icons/copilot.svg" alt="">
+        <span>Copilot</span>
+    </button>
+
+    <button class="app-btn" data-url="perplexity://">
+        <img src="icons/perplexity.svg" alt="">
+        <span>Perplexity</span>
+    </button>
+
+</section>
+
+<div class="search-wrap">
+
+    <input
+        id="searchInput"
+        type="text"
+        placeholder="Введите запрос..."
+    >
+
+    <button id="searchBtn">
+        ↑
     </button>
 
 </div>
 
-<div id="app" style="display:none;">
-
-    <aside class="sidebar">
-
-        <div id="user-info"></div>
-
-        <button id="new-chat-btn">
-            + Новый чат
-        </button>
-
-        <div id="chats-list"></div>
-
-    </aside>
-
-    <main class="chat-area">
-
-        <div id="messages">
-
-            Выберите чат
-
-        </div>
-
-    </main>
-
-</div>
-
-<script type="module" src="auth.js"></script>
-<script type="module" src="chat.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
