@@ -87,12 +87,6 @@ body{
     overflow:hidden;
 }
 
-/* ===== Анимация "Siri waveform" =====
-   Холст растянут на всю ширину карточки (от края до края), волна
-   утончается к краям и в просветах между тремя "линзами" — как на
-   референсе, но сведена через multiply (а не screen), потому что
-   фон белый: на чёрном фоне цвета "высветляют" друг друга, на белом
-   их нужно перемножать, иначе на белом всё было бы просто белым. */
 .wave-wrap{
     width:calc(100% + 40px);
     margin:-8px -20px 10px;
@@ -114,7 +108,7 @@ body{
     font-size:15px;
 }
 
-/* ===== Иконки приложений — размер ближе к иконкам iPhone ===== */
+/* ===== Иконки приложений — увеличены на 20% ===== */
 .apps{
     display:flex;
     gap:18px;
@@ -133,14 +127,14 @@ body{
     align-items:center;
     gap:8px;
     text-decoration:none;
-    width:76px;
+    width:91px;
 }
 .app-item:active .app-tile{ transform:scale(.92); }
 
 .app-tile{
-    width:76px;
-    height:76px;
-    border-radius:18px;
+    width:91px;
+    height:91px;
+    border-radius:22px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -151,19 +145,20 @@ body{
     border:1px solid rgba(255,255,255,.5);
     transition:transform .15s ease;
 }
+
+.app-tile img{
+    width:70%;
+    height:70%;
+    object-fit:contain;
+    z-index:2;
+}
+
 .app-tile::before{
     content:"";
     position:absolute;
     inset:0;
     background:linear-gradient(135deg, rgba(255,255,255,.45), rgba(255,255,255,0) 55%);
     pointer-events:none;
-}
-.app-tile span{
-    position:relative;
-    z-index:1;
-    color:#fff;
-    font-weight:700;
-    font-size:23px;
 }
 
 .app-tile.chatgpt{ background:linear-gradient(135deg,#10a37f,#0a3f36); }
@@ -255,29 +250,47 @@ body{
     <p>Задайте вопрос или выберите приложение ниже</p>
 </section>
 
+<!-- ===== ИКОНКИ С ИЗОБРАЖЕНИЯМИ ===== -->
 <div class="apps">
     <a class="app-item" href="https://chatgpt.com" target="_blank" rel="noopener">
-        <span class="app-tile chatgpt"><span>Ch</span></span>
+        <span class="app-tile chatgpt">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg">
+        </span>
         <span class="app-label">ChatGPT</span>
     </a>
+
     <a class="app-item" href="https://gemini.google.com" target="_blank" rel="noopener">
-        <span class="app-tile gemini"><span>Ge</span></span>
+        <span class="app-tile gemini">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Google_Gemini_logo.svg">
+        </span>
         <span class="app-label">Gemini</span>
     </a>
+
     <a class="app-item" href="https://claude.ai" target="_blank" rel="noopener">
-        <span class="app-tile claude"><span>Cl</span></span>
+        <span class="app-tile claude">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Anthropic_Claude_logo.svg">
+        </span>
         <span class="app-label">Claude</span>
     </a>
+
     <a class="app-item" href="https://copilot.microsoft.com" target="_blank" rel="noopener">
-        <span class="app-tile copilot"><span>Co</span></span>
+        <span class="app-tile copilot">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Microsoft_Copilot_logo.svg">
+        </span>
         <span class="app-label">Copilot</span>
     </a>
+
     <a class="app-item" href="https://grok.com" target="_blank" rel="noopener">
-        <span class="app-tile grok"><span>Gr</span></span>
+        <span class="app-tile grok">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Grok_logo.svg">
+        </span>
         <span class="app-label">Grok</span>
     </a>
+
     <a class="app-item" href="https://www.perplexity.ai" target="_blank" rel="noopener">
-        <span class="app-tile perplexity"><span>Pe</span></span>
+        <span class="app-tile perplexity">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Perplexity_AI_logo.svg">
+        </span>
         <span class="app-label">Perplexity</span>
     </a>
 </div>
