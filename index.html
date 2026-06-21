@@ -3,14 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#ffffff">
 <title>AI Assistant</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
-<style>
 
+<style>
 :root{
     --glass:rgba(255,255,255,.55);
     --green:#22c55e;
@@ -24,44 +19,19 @@
     -webkit-tap-highlight-color:transparent;
 }
 
-html,body{ height:100%; }
-
 body{
     background:#ffffff;
-    font-family:ui-rounded,"SF Pro Rounded","Baloo 2",-apple-system,BlinkMacSystemFont,sans-serif;
+    font-family:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,sans-serif;
     overflow-x:hidden;
     color:#111;
 }
 
-.bg{
-    position:fixed;
-    inset:0;
-    background:#ffffff;
-    z-index:-1;
-}
-
 .header{
-    padding:calc(env(safe-area-inset-top) + 16px) 20px 10px;
+    padding:20px;
     display:flex;
     align-items:center;
     gap:14px;
-    position:relative;
-    z-index:1;
 }
-
-.menu-btn{
-    width:44px; height:44px;
-    border:none; background:none;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:5px; cursor:pointer;
-}
-.menu-btn span{
-    display:block; width:26px; height:4px;
-    border-radius:4px; background:#111;
-    transition:background .2s ease;
-}
-.menu-btn:active span{ background:var(--green); }
 
 .header h1{
     font-size:30px;
@@ -74,28 +44,8 @@ body{
     border-radius:32px;
     background:var(--glass);
     backdrop-filter:blur(30px);
-    -webkit-backdrop-filter:blur(30px);
     border:1px solid rgba(255,255,255,.6);
     text-align:center;
-    box-shadow:
-        inset 0 1px 1px rgba(255,255,255,.6),
-        0 2px 6px rgba(0,0,0,.04),
-        0 14px 30px rgba(0,0,0,.06),
-        0 32px 60px rgba(0,0,0,.04);
-    position:relative;
-    z-index:1;
-    overflow:hidden;
-}
-
-.wave-wrap{
-    width:calc(100% + 40px);
-    margin:-8px -20px 10px;
-    height:84px;
-}
-#waveCanvas{
-    width:100%;
-    height:100%;
-    display:block;
 }
 
 .hero h2{
@@ -103,21 +53,21 @@ body{
     margin-bottom:8px;
     font-weight:700;
 }
+
 .hero p{
     color:#555;
     font-size:15px;
 }
 
-/* ===== Иконки приложений — увеличены на 20% ===== */
+/* ===== Иконки ===== */
+
 .apps{
     display:flex;
     gap:18px;
     overflow-x:auto;
     padding:6px 20px 18px;
-    scrollbar-width:none;
-    position:relative;
-    z-index:1;
 }
+
 .apps::-webkit-scrollbar{ display:none; }
 
 .app-item{
@@ -126,47 +76,30 @@ body{
     flex-direction:column;
     align-items:center;
     gap:8px;
-    text-decoration:none;
     width:91px;
+    cursor:pointer;
 }
-.app-item:active .app-tile{ transform:scale(.92); }
 
 .app-tile{
     width:91px;
     height:91px;
     border-radius:22px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    position:relative;
     overflow:hidden;
-    isolation:isolate;
-    box-shadow:none;
-    border:1px solid rgba(255,255,255,.5);
+    background:#fff;
+    border:1px solid rgba(255,255,255,.4);
+    box-shadow:0 6px 14px rgba(0,0,0,.18), 0 2px 4px rgba(0,0,0,.12);
     transition:transform .15s ease;
 }
 
+.app-tile:active{
+    transform:scale(.92);
+}
+
 .app-tile img{
-    width:70%;
-    height:70%;
-    object-fit:contain;
-    z-index:2;
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
-
-.app-tile::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(135deg, rgba(255,255,255,.45), rgba(255,255,255,0) 55%);
-    pointer-events:none;
-}
-
-.app-tile.chatgpt{ background:linear-gradient(135deg,#10a37f,#0a3f36); }
-.app-tile.gemini{ background:linear-gradient(135deg,#4285f4,#9b72cb); }
-.app-tile.claude{ background:linear-gradient(135deg,#d97757,#b8552e); }
-.app-tile.copilot{ background:linear-gradient(135deg,#0f6cbd,#3aa0e0); }
-.app-tile.grok{ background:linear-gradient(135deg,#2b2b2b,#000000); }
-.app-tile.perplexity{ background:linear-gradient(135deg,#20b8a6,#0e7c8c); }
 
 .app-label{
     font-size:12px;
@@ -175,14 +108,15 @@ body{
     text-align:center;
 }
 
+/* ===== Поиск ===== */
+
 .search-wrap{
     position:fixed;
     left:20px; right:20px;
-    bottom:calc(env(safe-area-inset-bottom) + 16px);
+    bottom:20px;
     display:flex;
     gap:10px;
     align-items:center;
-    z-index:2;
 }
 
 .input-glow{
@@ -192,31 +126,27 @@ body{
     background:linear-gradient(90deg,#4285f4,#8b5cf6,#ec4899,#22c55e,#4285f4);
     background-size:300% 300%;
     animation:borderFlow 6s linear infinite;
-    box-shadow:0 14px 30px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.05);
 }
+
 #searchInput{
     width:100%;
     border:none;
     border-radius:28px;
     padding:16px 18px;
     font-size:16px;
-    font-family:inherit;
     background:#ffffff;
     outline:none;
 }
 
 #searchBtn{
-    flex:none;
     width:58px; height:58px;
     border:none;
     border-radius:30px;
     background:linear-gradient(135deg,#34d058,var(--green-dark));
     color:#fff;
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 10px 24px rgba(34,197,94,.35), 0 4px 10px rgba(34,197,94,.25);
-    transition:transform .15s ease;
 }
-#searchBtn:active{ transform:scale(.92); }
+
 #searchBtn svg{ width:22px; height:22px; }
 
 @keyframes borderFlow{
@@ -224,82 +154,75 @@ body{
     50%{ background-position:100% 50%; }
     100%{ background-position:0% 50%; }
 }
-
-@media (prefers-reduced-motion:reduce){
-    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
-}
-
 </style>
 </head>
+
 <body>
 
-<div class="bg"></div>
-
 <header class="header">
-    <button class="menu-btn" aria-label="Меню">
-        <span></span><span></span><span></span>
-    </button>
     <h1>AI Assistant</h1>
 </header>
 
 <section class="hero">
-    <div class="wave-wrap">
-        <canvas id="waveCanvas"></canvas>
-    </div>
     <h2>Чем помочь сегодня?</h2>
     <p>Задайте вопрос или выберите приложение ниже</p>
 </section>
 
-<!-- ===== ИКОНКИ С ИЗОБРАЖЕНИЯМИ ===== -->
+<!-- ===== ИКОНКИ С DEEPLINK + FALLBACK ===== -->
+
 <div class="apps">
-    <a class="app-item" href="https://chatgpt.com" target="_blank" rel="noopener">
-        <span class="app-tile chatgpt">
+
+    <div class="app-item" onclick="openApp('chatgpt://', 'https://apps.apple.com/app/id6448311069')">
+        <div class="app-tile">
             <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg">
-        </span>
+        </div>
         <span class="app-label">ChatGPT</span>
-    </a>
+    </div>
 
-    <a class="app-item" href="https://gemini.google.com" target="_blank" rel="noopener">
-        <span class="app-tile gemini">
+    <div class="app-item" onclick="openApp('googleapp://gemini', 'https://apps.apple.com/app/id284815942')">
+        <div class="app-tile">
             <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/Google_Gemini_logo.svg">
-        </span>
+        </div>
         <span class="app-label">Gemini</span>
-    </a>
+    </div>
 
-    <a class="app-item" href="https://claude.ai" target="_blank" rel="noopener">
-        <span class="app-tile claude">
+    <div class="app-item" onclick="openApp('claude://', 'https://apps.apple.com/app/id6479934029')">
+        <div class="app-tile">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Anthropic_Claude_logo.svg">
-        </span>
+        </div>
         <span class="app-label">Claude</span>
-    </a>
+    </div>
 
-    <a class="app-item" href="https://copilot.microsoft.com" target="_blank" rel="noopener">
-        <span class="app-tile copilot">
+    <div class="app-item" onclick="openApp('copilot://', 'https://apps.apple.com/app/id6472538445')">
+        <div class="app-tile">
             <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Microsoft_Copilot_logo.svg">
-        </span>
+        </div>
         <span class="app-label">Copilot</span>
-    </a>
+    </div>
 
-    <a class="app-item" href="https://grok.com" target="_blank" rel="noopener">
-        <span class="app-tile grok">
+    <div class="app-item" onclick="openApp('xai://grok', 'https://apps.apple.com/app/id6477560150')">
+        <div class="app-tile">
             <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Grok_logo.svg">
-        </span>
+        </div>
         <span class="app-label">Grok</span>
-    </a>
+    </div>
 
-    <a class="app-item" href="https://www.perplexity.ai" target="_blank" rel="noopener">
-        <span class="app-tile perplexity">
+    <div class="app-item" onclick="openApp('perplexity://', 'https://apps.apple.com/app/id6446206066')">
+        <div class="app-tile">
             <img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Perplexity_AI_logo.svg">
-        </span>
+        </div>
         <span class="app-label">Perplexity</span>
-    </a>
+    </div>
+
 </div>
+
+<!-- ===== ПОИСК ===== -->
 
 <div class="search-wrap">
     <div class="input-glow">
         <input id="searchInput" type="text" placeholder="Напишите сообщение...">
     </div>
-    <button id="searchBtn" aria-label="Отправить">
+    <button id="searchBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 19V6"/>
             <path d="M5.5 12.5L12 6l6.5 6.5"/>
@@ -307,67 +230,24 @@ body{
     </button>
 </div>
 
+<!-- ===== JS: DEEPLINK + FALLBACK ===== -->
+
 <script>
-(function(){
-    var canvas = document.getElementById('waveCanvas');
-    var ctx = canvas.getContext('2d');
-    var width = 0, height = 0;
-    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function openApp(deeplink, fallback) {
+    const start = Date.now();
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = deeplink;
+    document.body.appendChild(iframe);
 
-    function resize(){
-        var dpr = window.devicePixelRatio || 1;
-        width = canvas.clientWidth;
-        height = canvas.clientHeight;
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    var ribbons = [
-        { color:'rgba(10,100,255,0.80)',  phase:0.0, freqMul:1.00, speed:0.55, amp:0.85 },
-        { color:'rgba(255,45,130,0.78)',  phase:1.1, freqMul:1.06, speed:-0.42, amp:0.95 },
-        { color:'rgba(139,92,246,0.72)',  phase:2.4, freqMul:0.96, speed:0.36,  amp:0.80 },
-        { color:'rgba(255,214,10,0.78)',  phase:3.6, freqMul:1.04, speed:-0.30, amp:0.90 },
-        { color:'rgba(34,197,94,0.75)',   phase:4.7, freqMul:0.99, speed:0.46,  amp:0.85 },
-        { color:'rgba(255,255,255,0.85)', phase:0.5, freqMul:1.02, speed:-0.55, amp:0.55 }
-    ];
-
-    var lobes = 3;
-    var t = 0;
-
-    function frame(){
-        t += 0.012;
-        ctx.clearRect(0, 0, width, height);
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = 9;
-
-        var mid = height / 2;
-
-        for (var i = 0; i < ribbons.length; i++){
-            var r = ribbons[i];
-            ctx.beginPath();
-            ctx.strokeStyle = r.color;
-            var first = true;
-            for (var x = 0; x <= width; x += 4){
-                var xr = x / width;
-                var env = Math.abs(Math.sin(xr * Math.PI * lobes));
-                var y = mid + env * (height * 0.42) * r.amp *
-                    Math.sin(xr * Math.PI * 9 * r.freqMul + r.phase + t * r.speed);
-                if (first){ ctx.moveTo(x, y); first = false; }
-                else { ctx.lineTo(x, y); }
-            }
-            ctx.stroke();
+    setTimeout(() => {
+        if (Date.now() - start < 1200) {
+            window.location.href = fallback;
         }
+    }, 900);
 
-        if (!reduced) requestAnimationFrame(frame);
-    }
-
-    frame();
-})();
+    setTimeout(() => iframe.remove(), 2000);
+}
 </script>
 
 </body>
