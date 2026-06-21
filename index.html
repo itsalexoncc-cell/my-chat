@@ -2,82 +2,250 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<title>AI Assistant</title>
 
-<title>AI Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="style.css">
+<style>
+
+:root{
+    --glass:rgba(255,255,255,.55);
+    --green:#22c55e;
+    --green-dark:#16a34a;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{ height:100%; }
+
+body{
+    background:#ffffff;
+    font-family:ui-rounded,"SF Pro Rounded","Baloo 2",-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow-x:hidden;
+    color:#111;
+}
+
+.bg{
+    position:fixed;
+    inset:0;
+    background:#ffffff;
+    z-index:-1;
+}
+
+.header{
+    padding:calc(env(safe-area-inset-top) + 16px) 20px 10px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.menu-btn{
+    width:44px; height:44px;
+    border:none; background:none;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:5px;
+}
+
+.menu-btn span{
+    width:26px;
+    height:4px;
+    border-radius:4px;
+    background:#111;
+}
+
+.header h1{
+    font-size:30px;
+    font-weight:700;
+}
+
+/* HERO */
+.hero{
+    margin:16px;
+    padding:34px 20px 30px;
+    border-radius:32px;
+    background:var(--glass);
+    backdrop-filter:blur(30px);
+    border:1px solid rgba(255,255,255,.6);
+    text-align:center;
+}
+
+.wave-wrap{
+    width:calc(100% + 40px);
+    margin:-8px -20px 10px;
+    height:84px;
+}
+#waveCanvas{ width:100%; height:100%; display:block; }
+
+.hero h2{ font-size:26px; margin-bottom:8px; }
+.hero p{ color:#555; font-size:15px; }
+
+/* ===== APP ICONS ===== */
+
+.apps{
+    display:flex;
+    gap:18px;
+    overflow-x:auto;
+    padding:10px 20px 18px;
+}
+
+.apps::-webkit-scrollbar{ display:none; }
+
+.app-item{
+    flex:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    width:92px; /* +20% */
+}
+
+.app-tile{
+    width:92px;  /* +20% */
+    height:92px; /* +20% */
+    border-radius:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    position:relative;
+    border:1px solid rgba(255,255,255,.5);
+}
+
+.app-tile img{
+    width:60%;
+    height:60%;
+    object-fit:contain;
+}
+
+.app-label{
+    font-size:13px;
+    font-weight:600;
+    color:#444;
+    text-align:center;
+}
+
+/* colors */
+.chatgpt{ background:linear-gradient(135deg,#10a37f,#0a3f36); }
+.gemini{ background:linear-gradient(135deg,#4285f4,#9b72cb); }
+.claude{ background:linear-gradient(135deg,#d97757,#b8552e); }
+.copilot{ background:linear-gradient(135deg,#0f6cbd,#3aa0e0); }
+.grok{ background:linear-gradient(135deg,#000,#2b2b2b); }
+.perplexity{ background:linear-gradient(135deg,#20b8a6,#0e7c8c); }
+
+.search-wrap{
+    position:fixed;
+    left:20px;
+    right:20px;
+    bottom:20px;
+    display:flex;
+    gap:10px;
+}
+
+.input-glow{
+    flex:1;
+    border-radius:30px;
+    padding:2px;
+    background:linear-gradient(90deg,#4285f4,#8b5cf6,#ec4899,#22c55e);
+}
+
+#searchInput{
+    width:100%;
+    padding:16px;
+    border-radius:28px;
+    border:none;
+}
+
+#searchBtn{
+    width:58px;
+    height:58px;
+    border-radius:30px;
+    border:none;
+    background:var(--green);
+    color:#fff;
+}
+
+/* wave */
+canvas{ display:block; }
+
+</style>
 </head>
+
 <body>
 
 <div class="bg"></div>
 
 <header class="header">
-    <button class="menu-btn">☰</button>
-    <h1>AI</h1>
+    <button class="menu-btn">
+        <span></span><span></span><span></span>
+    </button>
+    <h1>AI Assistant</h1>
 </header>
 
 <section class="hero">
-
-    <div class="hero-icon">✦</div>
-
-    <h2>AI Assistant</h2>
-
-    <p>
-        Быстрый доступ ко всем AI-сервисам
-    </p>
-
+    <div class="wave-wrap">
+        <canvas id="waveCanvas"></canvas>
+    </div>
+    <h2>Чем помочь сегодня?</h2>
+    <p>Выбери AI ассистента</p>
 </section>
 
-<section class="apps">
+<div class="apps">
 
-    <button class="app-btn" data-url="chatgpt://">
-        <img src="icons/chatgpt.svg" alt="">
-        <span>ChatGPT</span>
-    </button>
+    <a class="app-item" href="https://chatgpt.com" target="_blank">
+        <div class="app-tile chatgpt">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg">
+        </div>
+        <div class="app-label">ChatGPT</div>
+    </a>
 
-    <button class="app-btn" data-url="gemini://">
-        <img src="icons/gemini.svg" alt="">
-        <span>Gemini</span>
-    </button>
+    <a class="app-item" href="https://gemini.google.com" target="_blank">
+        <div class="app-tile gemini">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8f/Google-gemini-icon.svg">
+        </div>
+        <div class="app-label">Gemini</div>
+    </a>
 
-    <button class="app-btn" data-url="claude://">
-        <img src="icons/claude.svg" alt="">
-        <span>Claude</span>
-    </button>
+    <a class="app-item" href="https://claude.ai" target="_blank">
+        <div class="app-tile claude">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Claude_AI_logo.svg">
+        </div>
+        <div class="app-label">Claude</div>
+    </a>
 
-    <button class="app-btn" data-url="grok://">
-        <img src="icons/grok.svg" alt="">
-        <span>Grok</span>
-    </button>
+    <a class="app-item" href="https://copilot.microsoft.com" target="_blank">
+        <div class="app-tile copilot">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/Microsoft_Copilot_Icon.svg">
+        </div>
+        <div class="app-label">Copilot</div>
+    </a>
 
-    <button class="app-btn" data-url="microsoft-copilot://">
-        <img src="icons/copilot.svg" alt="">
-        <span>Copilot</span>
-    </button>
+    <a class="app-item" href="https://grok.com" target="_blank">
+        <div class="app-tile grok">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/X_Ai_logo.svg/512px-X_Ai_logo.svg.png">
+        </div>
+        <div class="app-label">Grok</div>
+    </a>
 
-    <button class="app-btn" data-url="perplexity://">
-        <img src="icons/perplexity.svg" alt="">
-        <span>Perplexity</span>
-    </button>
-
-</section>
-
-<div class="search-wrap">
-
-    <input
-        id="searchInput"
-        type="text"
-        placeholder="Спроси у Gemini..."
-    >
-
-    <button id="searchBtn">
-        ↑
-    </button>
+    <a class="app-item" href="https://www.perplexity.ai" target="_blank">
+        <div class="app-tile perplexity">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d8/Perplexity_AI_logo.svg">
+        </div>
+        <div class="app-label">Perplexity</div>
+    </a>
 
 </div>
-
-<script src="app.js"></script>
 
 </body>
 </html>
