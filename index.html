@@ -82,6 +82,12 @@ body{
     gap:18px;
     overflow-x:auto;
     padding:10px 20px 18px;
+
+    /* УБРАЛ СКРОЛЛБАР */
+    scrollbar-width:none;
+}
+.apps::-webkit-scrollbar{
+    display:none;
 }
 
 .app-item{
@@ -92,6 +98,7 @@ body{
     gap:8px;
 }
 
+/* ТЕНЬ ДОБАВЛЕНА */
 .app-tile{
     width:92px;
     height:92px;
@@ -100,6 +107,8 @@ body{
     align-items:center;
     justify-content:center;
     overflow:hidden;
+
+    box-shadow:0 10px 25px rgba(0,0,0,0.12);
 }
 
 .app-tile img{
@@ -139,6 +148,7 @@ body{
     outline:none;
 }
 
+/* ЛУПА → СТРЕЛКА ВВЕРХ */
 #searchBtn{
     width:58px;
     height:58px;
@@ -146,16 +156,8 @@ body{
     border:none;
     background:#22c55e;
     color:white;
-    font-size:18px;
+    font-size:22px;
 }
-
-/* COLORS */
-.chatgpt{background:linear-gradient(135deg,#10a37f,#0a3f36);}
-.gemini{background:linear-gradient(135deg,#4285f4,#9b72cb);}
-.claude{background:linear-gradient(135deg,#d97757,#b8552e);}
-.copilot{background:linear-gradient(135deg,#0f6cbd,#3aa0e0);}
-.grok{background:linear-gradient(135deg,#000,#2b2b2b);}
-.perplexity{background:linear-gradient(135deg,#20b8a6,#0e7c8c);}
 
 </style>
 </head>
@@ -167,9 +169,7 @@ body{
         <input id="searchInput" type="text" placeholder="Напишите запрос...">
     </div>
 
-    <button id="searchBtn" onclick="searchGoogle()">
-        🔍
-    </button>
+    <button id="searchBtn" onclick="searchGoogle()">↑</button>
 </div>
 
 <script>
@@ -182,17 +182,13 @@ function searchGoogle(){
 
 <div class="bg"></div>
 
-<!-- HEADER (ВОССТАНОВЛЕНО) -->
 <header class="header">
     <button class="menu-btn">
-        <span></span>
-        <span></span>
-        <span></span>
+        <span></span><span></span><span></span>
     </button>
     <h1>AI Assistant</h1>
 </header>
 
-<!-- HERO (ВОССТАНОВЛЕНО + WAVE) -->
 <section class="hero">
 
     <div class="wave-wrap">
@@ -203,7 +199,6 @@ function searchGoogle(){
     <p>Выбери AI ассистента</p>
 </section>
 
-<!-- APPS -->
 <div class="apps">
 
     <a class="app-item" href="https://chatgpt.com">
@@ -238,7 +233,7 @@ function searchGoogle(){
 
 </div>
 
-<!-- WAVE SCRIPT (ВОССТАНОВЛЕНО) -->
+<!-- WAVE SCRIPT (НЕ ТРОГАЛ) -->
 <script>
 const canvas = document.getElementById("waveCanvas");
 const ctx = canvas.getContext("2d");
