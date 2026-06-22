@@ -114,6 +114,41 @@ body{
     color:#444;
 }
 
+.search-wrap{
+    position:fixed;
+    left:20px;
+    right:20px;
+    bottom:20px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.input-glow{
+    flex:1;
+    padding:2px;
+    border-radius:30px;
+    background:linear-gradient(90deg,#4285f4,#8b5cf6,#ec4899,#22c55e);
+}
+
+#searchInput{
+    width:100%;
+    padding:16px;
+    border-radius:28px;
+    border:none;
+    outline:none;
+}
+
+#searchBtn{
+    width:58px;
+    height:58px;
+    border-radius:30px;
+    border:none;
+    background:#22c55e;
+    color:white;
+    font-size:18px;
+}
+
 /* COLORS */
 .chatgpt{background:linear-gradient(135deg,#10a37f,#0a3f36);}
 .gemini{background:linear-gradient(135deg,#4285f4,#9b72cb);}
@@ -126,6 +161,24 @@ body{
 </head>
 
 <body>
+
+<div class="search-wrap">
+    <div class="input-glow">
+        <input id="searchInput" type="text" placeholder="Напишите запрос...">
+    </div>
+
+    <button id="searchBtn" onclick="searchGoogle()">
+        🔍
+    </button>
+</div>
+
+<script>
+function searchGoogle(){
+    const q = document.getElementById("searchInput").value;
+    if(!q) return;
+    window.open("https://www.google.com/search?q=" + encodeURIComponent(q), "_blank");
+}
+</script>
 
 <div class="bg"></div>
 
